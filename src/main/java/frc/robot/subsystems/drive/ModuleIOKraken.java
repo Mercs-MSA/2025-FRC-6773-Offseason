@@ -5,6 +5,7 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -13,6 +14,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import frc.robot.Constants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -101,6 +104,9 @@ public class ModuleIOKraken implements ModuleIO {
         absoluteEncoder = new CANcoder(config.encoderID(), Constants.kCanbusName);
         absolutePositionSignal = absoluteEncoder.getAbsolutePosition();
         var encoderConfig = new CANcoderConfiguration();
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        //encoderConfig.MagnetSensor.withMagnetOffset(absoluteEncoderOffset.getRotations());
         absoluteEncoder.getConfigurator().apply(encoderConfig);
 
         BaseStatusSignal.setUpdateFrequencyForAll(50.0, absolutePositionSignal);
@@ -116,12 +122,15 @@ public class ModuleIOKraken implements ModuleIO {
 
         turnConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         turnConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         turnConfig.MotorOutput.Inverted = kTurnMotorInvert ? 
             InvertedValue.Clockwise_Positive : 
             InvertedValue.CounterClockwise_Positive;
-        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        turnConfig.Feedback.SensorToMechanismRatio = kAzimuthMotorGearing;
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turnConfig.Feedback.FeedbackRemoteSensorID = config.encoderID();
+        turnConfig.Feedback.SensorToMechanismRatio = 1.0;
+        turnConfig.Feedback.RotorToSensorRatio = 12.1;
+
         turnConfig.Slot0.kP = kModuleControllerConfigs.azimuthController().getP();
         turnConfig.Slot0.kD = kModuleControllerConfigs.azimuthController().getD();
         turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
@@ -227,15 +236,14 @@ public class ModuleIOKraken implements ModuleIO {
     @Override
     public void setAzimuthVolts(double volts) {
         /* Sets azimuth voltage inbetween kPeakVoltage and -kPeakVoltage */
-        driveMotor.setControl(azimuthVoltageControl.withOutput(volts));
+        azimuthMotor.setControl(azimuthVoltageControl.withOutput(volts));
     }
 
     @Override
     public void setAzimuthPosition(Rotation2d rotation, double feedforward) {   
         /* Uses voltage PID with a arbitrary FF on the with Slot 0 gains */
-        azimuthMotor.setControl(azimuthPositionControl
-            .withPosition(rotation.getRotations())
-            .withFeedForward(feedforward)
+        azimuthMotor.setControl(new PositionVoltage(rotation.getRotations())
+            .withFeedForward(0)
             .withSlot(0));
     }
 

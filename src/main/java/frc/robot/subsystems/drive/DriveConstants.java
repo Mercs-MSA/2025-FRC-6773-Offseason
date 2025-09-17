@@ -52,7 +52,7 @@ public class DriveConstants {
 
     ///////////////////// MODULES \\\\\\\\\\\\\\\\\\\\\\\
     /* GENERAL SWERVE MODULE CONSTANTS */
-    public static final boolean kTurnMotorInvert = true;
+    public static final boolean kTurnMotorInvert = false;
     public static final double kAzimuthMotorGearing = 12.1;
     public static final double kDriveMotorGearing = 6.48 / 1.0;
     public static final double kWheelRadiusMeters = 5.08 / 100.0;
@@ -70,7 +70,7 @@ public class DriveConstants {
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
             new PIDController(10, 0.0, 0.0), new SimpleMotorFeedforward(1.25, 0.0, 1.0),
-            new PIDController(1, 0.0, 0.01), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
+            new PIDController(60, 0.0, 0.3), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
             new PIDController(0.01, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.36, 0.005), 
             new PIDController(0.01, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
@@ -84,28 +84,28 @@ public class DriveConstants {
             11, 
             21, 
             31,
-            Rotation2d.fromRotations(0.498291));
+            Rotation2d.fromRotations(0.0));
 
     public static final ModuleHardwareConfig kFrontRightHardware =
         new ModuleHardwareConfig(
             12, 
             22, 
             32, 
-            Rotation2d.fromRotations(0.335449));
+            Rotation2d.fromRotations(0.0));
 
     public static final ModuleHardwareConfig kBackLeftHardware =
         new ModuleHardwareConfig(
             13, 
             23, 
             33,
-            Rotation2d.fromRotations(0.493164));
+            Rotation2d.fromRotations(0.0));
 
     public static final ModuleHardwareConfig kBackRightHardware =
         new ModuleHardwareConfig(
             14, 
             24, 
             34,
-            Rotation2d.fromRotations(0.494141));
+            Rotation2d.fromRotations(0.0));
 
     public static record ModuleHardwareConfig(
         int driveID, int azimuthID, int encoderID, Rotation2d offset) {}
