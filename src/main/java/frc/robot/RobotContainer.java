@@ -26,6 +26,13 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakePivotIO;
+import frc.robot.subsystems.intake.IntakePivotIOSim;
+import frc.robot.subsystems.intake.IntakePivotIOTalonFX;
+import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
+import frc.robot.TeleopCommands;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
@@ -35,10 +42,11 @@ import java.util.HashMap;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
+     private final Intake intake;
+
     
     // Define other utility classes
     
@@ -55,6 +63,9 @@ public class RobotContainer {
     // Anshul said to use this because he loves event loops
     private final EventLoop teleopLoop = new EventLoop();
 
+    private final TeleopCommands teleopCommands;
+
+
     public RobotContainer() {
 
 
@@ -67,6 +78,13 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2());
+
+                intake = new Intake(
+                    new IntakePivotIOTalonFX(
+                        IntakeConstants.kPivotMotorHardware,
+                        IntakeConstants.kPivotMotorConfiguration,
+                        IntakeConstants.kPivotGains,
+                        IntakeConstants.kStatusSignalUpdateFrequencyHz));
                 break;
             case SIM:
                robotDrive = new Drive( new Module[] {
@@ -75,6 +93,13 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {});
+
+                intake = new Intake(
+                    new IntakePivotIOSim(
+                        0.02,
+                        IntakeConstants.kPivotMotorHardware,
+                        IntakeConstants.kPivotSimulationConfiguration,
+                        IntakeConstants.kPivotGains));
                 break;
             default:
                robotDrive = new Drive( new Module[] {
@@ -83,11 +108,16 @@ public class RobotContainer {
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {});
+
+                intake = new Intake(new IntakePivotIO(){});
+
                 break;
         }
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
+        teleopCommands = new TeleopCommands(intake);
+
 
 
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
@@ -156,6 +186,14 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
+
+            driverController.a()
+                .onTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
+                .onFalse(teleopCommands.stopPivotCommand());
+
+            driverController.b()
+                .onTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStationPickup))
+                .onFalse(teleopCommands.stopPivotCommand());
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
             // then pov control is being used as its being pressed
