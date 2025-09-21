@@ -66,6 +66,8 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     motorConfiguration.MotionMagic.MotionMagicAcceleration = gains.maxAccelerationRotationsPerSecondSquared();
     motorConfiguration.MotionMagic.MotionMagicJerk = gains.jerkRotationsPerSecondCubed();
 
+    //TODO: Add in the gearing ratio (pivot to throughbore) + add encoder object
+
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimit = configuration.supplyCurrentLimitAmps();
     motorConfiguration.CurrentLimits.StatorCurrentLimitEnable = configuration.enableStatorCurrentLimit();
