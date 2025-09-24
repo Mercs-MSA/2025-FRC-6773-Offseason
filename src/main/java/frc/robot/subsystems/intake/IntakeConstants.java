@@ -211,7 +211,7 @@ public class IntakeConstants {
     Units.inchesToMeters(20.0), // Ligament length meters
     kMinPivotPosition, // Min position
     kMaxPivotPosition, // Max position
-    true, // Simulate gravity
+    false, // Simulate gravity
     new Rotation2d(), // Initial position
     0.002); // Std devs
 
