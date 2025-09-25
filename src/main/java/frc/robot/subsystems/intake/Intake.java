@@ -42,6 +42,9 @@ public class Intake extends SubsystemBase {
   private final IntakePivotIO kPivotHardware;
   private final IntakePivotIOInputsAutoLogged kPivotInputs = new IntakePivotIOInputsAutoLogged();
 
+  private final IntakeRollerIO kRollerHardware;
+  private final IntakeRollerIOInputsAutoLogged kRollerInputs = new IntakeRollerIOInputsAutoLogged();
+
   private final LoggedTunableNumber kP =
       new LoggedTunableNumber("Intake/Gains/Pivot_kP", IntakeConstants.kPivotGains.p());
   private final LoggedTunableNumber kI =
@@ -65,21 +68,27 @@ public class Intake extends SubsystemBase {
           "Intake/MotionMagic/Pivot_kMaxAcceleration", 
           IntakeConstants.kPivotGains.maxAccelerationRotationsPerSecondSquared());
 
+  private final LoggedTunableNumber kRollerVoltage = new LoggedTunableNumber("Intake/Roller/RollerVoltage", IntakeConstants.kRollerIntakingVoltage);
+
   private boolean detectedGamepiece = false;
   private IntakePivotGoal currentPivotGoal;
 
   private final PivotVisualizer kPivotVisualizer;
+  //TODO add roller visualizer
 
   
   /** Creates a new Intake. */
-  public Intake(IntakePivotIO pivotHardwareIO) {
+  public Intake(IntakePivotIO pivotHardwareIO, IntakeRollerIO rollerHardwareIO) {
     kPivotHardware = pivotHardwareIO;
+    kRollerHardware = rollerHardwareIO;
 
     kPivotVisualizer = new PivotVisualizer(
       "Intake/PivotVisualizer", 
       IntakeConstants.kPivotVisualizerConfiguration, 
       4.0, 
       new Color8Bit(Color.kBlue));
+
+    //TODO: roller visualizer
   }
 
   @Override
@@ -87,7 +96,9 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
 
     kPivotHardware.updateInputs(kPivotInputs);
+    kRollerHardware.updateInputs(kRollerInputs);
     Logger.processInputs("Intake/Inputs/Pivot", kPivotInputs);
+    Logger.processInputs("Intake/Inputs/Roller", kRollerInputs);
 
     if (currentPivotGoal != null) {
       setPivotPosition(currentPivotGoal.getGoalPosition());
@@ -96,6 +107,11 @@ public class Intake extends SubsystemBase {
     } else {
       Logger.recordOutput("Intake/PivotGoal", "NONE");
     }
+
+
+
+
+    
 
     // Check if pivot is attempting to move beyond its limitations
     if (getPivotPosition().getDegrees() > IntakeConstants.kMaxPivotPosition.getDegrees() 
@@ -116,6 +132,7 @@ public class Intake extends SubsystemBase {
       () -> {
         kPivotHardware.setGains(
             kP.get(), kI.get(), kD.get(), kS.get(), kG.get(), kV.get(), kA.get());
+        //TODO: tunable voltage
       },
       kP,
       kI,
@@ -142,7 +159,7 @@ public class Intake extends SubsystemBase {
 
   public void stop(boolean stopRollers, boolean stopPivot) {
     if (stopRollers) {
-      // TODO Stop rollers
+      kRollerHardware.stop();
     }
     if (stopPivot) {
       currentPivotGoal = null;
@@ -174,6 +191,14 @@ public class Intake extends SubsystemBase {
 
   public Rotation2d getPivotPosition() {
     return kPivotInputs.position;
+  }
+
+  public void runRollers() {
+    kRollerHardware.setVoltage(IntakeConstants.kRollerIntakingVoltage);
+  }
+
+  public void setRollerVoltage(double volts) {
+    kRollerHardware.setVoltage(volts);
   }
 
 }

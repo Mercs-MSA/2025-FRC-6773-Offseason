@@ -24,7 +24,6 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 public class Robot extends LoggedRobot {
     private Command mAutonomousCommand;
-    private Command mTeleopCommand;
 
     private RobotContainer mRobotContainer;
     
@@ -159,10 +158,7 @@ public class Robot extends LoggedRobot {
         if (mAutonomousCommand != null) {
             mAutonomousCommand.cancel();
         }
-        mTeleopCommand = mRobotContainer.getTeleopCommand();
-        if (mTeleopCommand != null) {
-            mTeleopCommand.schedule();
-        }
+        
 
         mRobotContainer.getTeleopEventLoop().poll();
     }

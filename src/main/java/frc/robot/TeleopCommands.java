@@ -30,6 +30,8 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
  * one in the event the caller does not specify what the command should do if it is
  * interrupted
  */
+
+ //TODO: rewrite logic, get rid of the two stop booleans
 public class TeleopCommands {
     // private final Elevator kElevator;
     private final Intake kIntake;
@@ -98,9 +100,27 @@ public class TeleopCommands {
             kIntake);
     }
 
+    public Command runRollerCommand() {
+        return Commands.runOnce(() -> {
+            stopRollers = false;
+            kIntake.runRollers();
+        });
+    }
+
+    public Command toggleRollerCommand() {
+        return Commands.runOnce(() -> {
+            stopRollers = !stopRollers;
+            if (stopRollers) {
+                kIntake.stop(true, false);
+            } else {
+                kIntake.runRollers();
+            }
+        });
+    }
+
 
     /**
-     * Stops the intake rollers. This will also stop the algae picker pivot if the
+     * Stops the intake rollers. This will also stop the pivot if the
      * stopPivot variable is set to true
      * 
      * @return The command to stop the rollers that runs once
@@ -117,7 +137,7 @@ public class TeleopCommands {
      * Stops the intake pivot. This will also stop the rollers if the stopRollers
      * internal variable is set to true
      * 
-     * @return The command to stop the algae picker pivot that runs once
+     * @return The command to stop the pivot that runs once
      */
     public Command stopPivotCommand() {
         // Note that the state must be set via command and not in method since the method
@@ -125,6 +145,10 @@ public class TeleopCommands {
         return setStopPivotStateCommand(true)
             .andThen(
                 Commands.runOnce(() -> kIntake.stop(stopRollers, stopPivot), kIntake));
+    }
+
+    public Command stopRollerCommand() {
+        return setStopRollerStateCommand(true).andThen(Commands.runOnce(() -> kIntake.stop(true, false)));
     }
 
     // public Command stopRollersAndPivotCommand() {
@@ -145,6 +169,10 @@ public class TeleopCommands {
      */
     private Command setStopPivotStateCommand(boolean stopPivotState) {
         return Commands.runOnce(() -> stopPivot = stopPivotState);
+    }
+
+    private Command setStopRollerStateCommand(boolean stopRollerState) {
+        return Commands.runOnce(() -> stopRollers = stopRollerState);
     }
 
     /*
