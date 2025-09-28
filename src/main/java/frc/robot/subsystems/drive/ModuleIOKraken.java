@@ -107,7 +107,6 @@ public class ModuleIOKraken implements ModuleIO {
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         //encoderConfig.MagnetSensor.withMagnetOffset(absoluteEncoderOffset.getRotations());
-        absoluteEncoder.getConfigurator().apply(encoderConfig);
 
         BaseStatusSignal.setUpdateFrequencyForAll(50.0, absolutePositionSignal);
         absoluteEncoder.optimizeBusUtilization();
@@ -126,10 +125,10 @@ public class ModuleIOKraken implements ModuleIO {
         turnConfig.MotorOutput.Inverted = kTurnMotorInvert ? 
             InvertedValue.Clockwise_Positive : 
             InvertedValue.CounterClockwise_Positive;
-        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turnConfig.Feedback.FeedbackRemoteSensorID = config.encoderID();
-        turnConfig.Feedback.SensorToMechanismRatio = 1.0;
-        turnConfig.Feedback.RotorToSensorRatio = 12.1;
+            
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        turnConfig.Feedback.RotorToSensorRatio = 1.0;
+        turnConfig.Feedback.SensorToMechanismRatio = kAzimuthMotorGearing;
 
         turnConfig.Slot0.kP = kModuleControllerConfigs.azimuthController().getP();
         turnConfig.Slot0.kD = kModuleControllerConfigs.azimuthController().getD();
@@ -139,6 +138,9 @@ public class ModuleIOKraken implements ModuleIO {
         turnConfig.TorqueCurrent.PeakForwardTorqueCurrent = kAzimuthFOCAmpLimit;
         turnConfig.TorqueCurrent.PeakReverseTorqueCurrent = -kAzimuthFOCAmpLimit;
 
+        resetAzimuthEncoder();
+
+        absoluteEncoder.getConfigurator().apply(encoderConfig);
         azimuthMotor.getConfigurator().apply(turnConfig);
 
         azimuthPosition = azimuthMotor.getPosition();
@@ -149,7 +151,6 @@ public class ModuleIOKraken implements ModuleIO {
         // azimuthTorqueCurrent = azimuthMotor.getTorqueCurrent();
         azimuthTemp = azimuthMotor.getDeviceTemp();
 
-        resetAzimuthEncoder();
     }
 
     @Override
