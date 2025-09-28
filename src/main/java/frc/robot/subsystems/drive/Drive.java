@@ -15,6 +15,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -25,6 +26,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,6 +43,7 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.CHOOSER_STRATEGY;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
+import frc.robot.subsystems.vision.Vision.VisionConsumer;
 import frc.robot.subsystems.drive.controllers.ManualTeleopController;
 import frc.robot.subsystems.drive.controllers.HolonomicController;
 
@@ -59,7 +63,7 @@ import org.littletonrobotics.junction.Logger;
  * This code is a swerve drivebase 
  * Main logic is handled in periodic() function
  */
-public class Drive extends SubsystemBase {
+public class Drive extends SubsystemBase implements VisionConsumer{
     public static enum DriveState {
         // TELEOP AND AUTON CONTROLS
         TELEOP,
@@ -513,6 +517,16 @@ public class Drive extends SubsystemBase {
         setPoses(pose, pose);
     }
 
+    /** Adds a new timestamped vision measurement. */
+    public void addVisionMeasurement(
+        Pose2d visionRobotPoseMeters,
+        double timestampSeconds,
+        Matrix<N3, N1> visionMeasurementStdDevs) {
+        System.out.println("Vision measurement added: " + visionRobotPoseMeters);
+        poseEstimator.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    }
+
     public void setPoses(Pose2d estimatorPose, Pose2d odometryPose) {
         robotRotation = estimatorPose.getRotation();
         gyro.resetGyro(robotRotation);
@@ -664,4 +678,12 @@ public class Drive extends SubsystemBase {
     public boolean getDriveToPoseTolerance() {
         return autoAlignController.atGoal();
     }
+
+    @Override
+    public void accept(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+  }
 }

@@ -27,10 +27,16 @@ import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIO;
+
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -39,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
+    private final Vision vision;
     
     // Define other utility classes
     
@@ -67,6 +74,14 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2());
+
+                vision =
+                new Vision(
+                    robotDrive::addVisionMeasurement,
+                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation));
+
+
+
                 break;
             case SIM:
                robotDrive = new Drive( new Module[] {
@@ -75,6 +90,13 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {});
+
+                vision =
+                new Vision(
+                    robotDrive::addVisionMeasurement,
+                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation));
+
+
                 break;
             default:
                robotDrive = new Drive( new Module[] {
@@ -83,6 +105,9 @@ public class RobotContainer {
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {});
+
+                vision = new Vision(null, null, null);
+
                 break;
         }
 
