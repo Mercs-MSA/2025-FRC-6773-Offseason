@@ -16,18 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIOKraken;
-import frc.robot.subsystems.drive.Module;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveState;
-import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
-import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
-
-import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
     // Define subsystems
-    private final Drive robotDrive;
+    
     
     // Define other utility classes
     
@@ -61,28 +49,13 @@ public class RobotContainer {
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
-               robotDrive = new Drive( new Module[] {
-                    new Module("FL", new ModuleIOKraken(kFrontLeftHardware )),
-                    new Module("FR", new ModuleIOKraken(kFrontRightHardware)),
-                    new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
-                    new Module("BR", new ModuleIOKraken(kBackRightHardware ))
-                }, new GyroIOPigeon2());
+               
                 break;
             case SIM:
-               robotDrive = new Drive( new Module[] {
-                    new Module("FL", new ModuleIOSim()),
-                    new Module("FR", new ModuleIOSim()),
-                    new Module("BL", new ModuleIOSim()),
-                    new Module("BR", new ModuleIOSim())
-                }, new GyroIO() {});
+               
                 break;
             default:
-               robotDrive = new Drive( new Module[] {
-                    new Module("FL", new ModuleIO() {}),
-                    new Module("FR", new ModuleIO() {}),
-                    new Module("BL", new ModuleIO() {}),
-                    new Module("BR", new ModuleIO() {})
-                }, new GyroIO() {});
+               
                 break;
         }
 
@@ -90,47 +63,34 @@ public class RobotContainer {
         // ex: LEDs = new LEDSubsystem();
 
 
-        robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
-
         // Pass subsystems to classes that need them for configuration
-        robotDrive.acceptJoystickInputs(
-            () -> - driverController.getLeftY(),
-            () -> - driverController.getLeftX(),
-            () -> - driverController.getRightX(),
-            () -> driverController.getHID().getPOV());
+
 
 
         // Create any Dashboard choosers (LoggedDashboardChooser, etc)
 
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
-        configureStateTriggers();
         configureButtonBindings();
     }
 
     /* Commands to schedule on telop start-up */
     public Command getTeleopCommand() {
         return new SequentialCommandGroup(
-            robotDrive.setDriveStateCommand(DriveState.TELEOP)
+
         );
     }
 
     public Command getAutonomousCommand() {
-        Commands.runOnce(() -> robotDrive.setDriveState(DriveState.AUTON), robotDrive).schedule();
+
 
         return autoChooser.get();
     }
 
     public void getAutonomousExit() {
-        robotDrive.setDriveState(DriveState.STOP);
+
     }
 
- private void configureStateTriggers() {
-        /* Due to roborio start up times sometimes modules aren't reset properly, this accounts for that */
-        new Trigger(DriverStation::isEnabled)
-            .onTrue(
-                /* Do not require robot drive or it will deschedule auto */
-                Commands.runOnce(() -> robotDrive.resetModulesEncoders()));
-    }
+
 
     private Command rumbleCommandOperator() {
         return Commands.startEnd(
@@ -155,7 +115,6 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
-            driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
             // then pov control is being used as its being pressed
@@ -206,30 +165,7 @@ public class RobotContainer {
         } 
 
         else {
-            driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
-
-            driverController.x()
-                .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
-                    robotDrive.runMOICharacterization(20), robotDrive)))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.x()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.TELEOP_SNIPER))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // getPOV == -1 if nothing is pressed, so if it doesn't return that
-            // then pov control is being used as its being pressed
-            new Trigger(()-> driverController.getHID().getPOV() != -1)
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            driverController.b()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            driverController.a()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+           
         }
     }
 
