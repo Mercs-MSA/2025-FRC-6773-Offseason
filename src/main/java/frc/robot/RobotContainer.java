@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     
-    
     // Define other utility classes
     
     private LoggedDashboardChooser<Command> autoChooser;
@@ -46,26 +45,8 @@ public class RobotContainer {
     public RobotContainer() {
 
 
-        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
-        switch (Constants.kCurrentMode) {
-            case REAL:
-               
-                break;
-            case SIM:
-               
-                break;
-            default:
-               
-                break;
-        }
-
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
-
-
-        // Pass subsystems to classes that need them for configuration
-
-
 
         // Create any Dashboard choosers (LoggedDashboardChooser, etc)
 
@@ -76,21 +57,24 @@ public class RobotContainer {
     /* Commands to schedule on telop start-up */
     public Command getTeleopCommand() {
         return new SequentialCommandGroup(
-
+           
         );
     }
 
     public Command getAutonomousCommand() {
 
-
         return autoChooser.get();
     }
 
     public void getAutonomousExit() {
-
     }
 
-
+ private void configureStateTriggers() {
+        /* Due to roborio start up times sometimes modules aren't reset properly, this accounts for that */
+        // new Trigger(DriverStation::isEnabled)
+        //     .onTrue(
+        //         /* Do not require robot drive or it will deschedule auto */);
+    }
 
     private Command rumbleCommandOperator() {
         return Commands.startEnd(
@@ -115,6 +99,7 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
+            // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
             // then pov control is being used as its being pressed
@@ -165,7 +150,29 @@ public class RobotContainer {
         } 
 
         else {
-           
+
+            // driverController.x()
+            //     .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
+            //         robotDrive.runMOICharacterization(20), robotDrive)))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            // // driverController.x()
+            // //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.TELEOP_SNIPER))
+            // //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            // // getPOV == -1 if nothing is pressed, so if it doesn't return that
+            // // then pov control is being used as its being pressed
+            // new Trigger(()-> driverController.getHID().getPOV() != -1)
+            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            // driverController.b()
+            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            // driverController.a()
+            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
         }
     }
 
