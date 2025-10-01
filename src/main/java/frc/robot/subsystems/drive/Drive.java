@@ -69,13 +69,8 @@ public class Drive extends SubsystemBase implements VisionConsumer{
         TELEOP,
         TELEOP_SNIPER,
         POV_SNIPER,
-        PROCESSOR_HEADING_ALIGN,
-        INTAKE_HEADING_ALIGN,
-        REEF_HEADING_ALIGN,
         DRIVE_TO_CORAL,
-        DRIVE_TO_ALGAE,
         DRIVE_TO_INTAKE,
-        DRIVE_TO_BARGE,
         AUTON, 
         STOP,
         UP,
@@ -277,49 +272,11 @@ public class Drive extends SubsystemBase implements VisionConsumer{
             case POV_SNIPER:
                 desiredSpeeds = teleopController.computeSniperPOVChassisSpeeds(getPoseEstimate().getRotation());
                 break;
-            case PROCESSOR_HEADING_ALIGN:
-                goalRotation = AllianceFlipUtil.apply(Rotation2d.fromDegrees(90.0));
-                desiredSpeeds = new ChassisSpeeds(
-                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
-                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
-                break;
-            case INTAKE_HEADING_ALIGN:
-                goalRotation = AllianceFlipUtil.apply(GoalPoseChooser.getIntakePose(getPoseEstimate()).getRotation());
-                desiredSpeeds = new ChassisSpeeds(
-                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
-                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
-                break;
-            case REEF_HEADING_ALIGN:
-                goalRotation = AllianceFlipUtil.apply(GoalPoseChooser.turnFromReefOrigin(getPoseEstimate()));
-                desiredSpeeds = new ChassisSpeeds(
-                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
-                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
-                break;
             case DRIVE_TO_CORAL:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                break;
-            case DRIVE_TO_BARGE:
-                ChassisSpeeds autoAlignSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());;
-                desiredSpeeds = new ChassisSpeeds(
-                    autoAlignSpeeds.vxMetersPerSecond,
-                    teleopSpeeds.vyMetersPerSecond,
-                    autoAlignSpeeds.omegaRadiansPerSecond
-                );
-                break;
-            case DRIVE_TO_ALGAE:
-                ChassisSpeeds algaeAlignSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                double forwardJoy = (goalPose.getX() > AllianceFlipUtil.apply(FieldConstants.kReefCenter.getX()))
-                ? -teleopSpeeds.vxMetersPerSecond: teleopSpeeds.vxMetersPerSecond;
-                if(AllianceFlipUtil.shouldFlip()) forwardJoy *= -1;
-                desiredSpeeds = new ChassisSpeeds(
-                    /* Flips speed to preserve field relative. Not best solution, but probably good enough? */
-                    forwardJoy,
-                    algaeAlignSpeeds.vyMetersPerSecond,
-                    algaeAlignSpeeds.omegaRadiansPerSecond
-                );
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;
@@ -377,26 +334,11 @@ public class Drive extends SubsystemBase implements VisionConsumer{
     public void setDriveState(DriveState state) {
         driveState = state;
         switch(driveState) {
-            case PROCESSOR_HEADING_ALIGN:
-                headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);            
-                break;
-            case REEF_HEADING_ALIGN:
-                headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);
-                break;
             case DRIVE_TO_CORAL:
                 autoAlignController.reset(
                     getPoseEstimate(),
                     ChassisSpeeds.fromRobotRelativeSpeeds(
                         getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
-                goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
-                break;
-            case DRIVE_TO_ALGAE:
-                GoalPoseChooser.setSide(SIDE.ALGAE);
-                autoAlignController.reset(
-                    getPoseEstimate(),
-                    ChassisSpeeds.fromRobotRelativeSpeeds(
-                        getRobotChassisSpeeds(), 
-                        getPoseEstimate().getRotation()));
                 goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
                 break;
             case DRIVE_TO_INTAKE:
@@ -406,15 +348,47 @@ public class Drive extends SubsystemBase implements VisionConsumer{
                         getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
                 goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kIntake, getPoseEstimate());
                 break;
-            case DRIVE_TO_BARGE:
-                autoAlignController.reset(
-                    getPoseEstimate(), 
-                    ChassisSpeeds.fromRobotRelativeSpeeds(
-                        getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
-                goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kNet, getPoseEstimate());
-                break;
             default:
         }
+        // switch(driveState) {
+        //     case PROCESSOR_HEADING_ALIGN:
+        //         headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);            
+        //         break;
+        //     case REEF_HEADING_ALIGN:
+        //         headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);
+        //         break;
+        //     case DRIVE_TO_CORAL:
+        //         autoAlignController.reset(
+        //             getPoseEstimate(),
+        //             ChassisSpeeds.fromRobotRelativeSpeeds(
+        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
+        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
+        //         break;
+        //     case DRIVE_TO_ALGAE:
+        //         GoalPoseChooser.setSide(SIDE.ALGAE);
+        //         autoAlignController.reset(
+        //             getPoseEstimate(),
+        //             ChassisSpeeds.fromRobotRelativeSpeeds(
+        //                 getRobotChassisSpeeds(), 
+        //                 getPoseEstimate().getRotation()));
+        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
+        //         break;
+        //     case DRIVE_TO_INTAKE:
+        //         autoAlignController.reset(
+        //             getPoseEstimate(), 
+        //             ChassisSpeeds.fromRobotRelativeSpeeds(
+        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
+        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kIntake, getPoseEstimate());
+        //         break;
+        //     case DRIVE_TO_BARGE:
+        //         autoAlignController.reset(
+        //             getPoseEstimate(), 
+        //             ChassisSpeeds.fromRobotRelativeSpeeds(
+        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
+        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kNet, getPoseEstimate());
+        //         break;
+        //     default:
+        // }
     }
 
     ////////////// CHASSIS SPEED TO MODULES \\\\\\\\\\\\\\\\
