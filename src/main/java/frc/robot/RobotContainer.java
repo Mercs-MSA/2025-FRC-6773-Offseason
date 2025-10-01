@@ -34,6 +34,7 @@ import java.util.HashMap;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
@@ -54,10 +55,9 @@ public class RobotContainer {
 
     // Anshul said to use this because he loves event loops
     private final EventLoop teleopLoop = new EventLoop();
+    private final AutonCommands autonCommands;
 
     public RobotContainer() {
-
-
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
@@ -85,7 +85,7 @@ public class RobotContainer {
                 }, new GyroIO() {});
                 break;
         }
-
+        autonCommands = new AutonCommands(robotDrive);
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
 
@@ -116,15 +116,14 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         Commands.runOnce(() -> robotDrive.setDriveState(DriveState.AUTON), robotDrive).schedule();
-
-        return autoChooser.get();
+        return autonCommands.followChoreoPath("New Path");
     }
 
     public void getAutonomousExit() {
         robotDrive.setDriveState(DriveState.STOP);
     }
 
- private void configureStateTriggers() {
+    private void configureStateTriggers() {
         /* Due to roborio start up times sometimes modules aren't reset properly, this accounts for that */
         new Trigger(DriverStation::isEnabled)
             .onTrue(
