@@ -1,8 +1,10 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
+
+import frc.robot.subsystems.drive.controllers.*;
+
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -27,10 +29,16 @@ import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIO;
+
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -39,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
+    private final Vision vision;
     
     // Define other utility classes
     
@@ -67,6 +76,16 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2());
+
+                vision =
+                new Vision(
+                    robotDrive::addVisionMeasurement,
+                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation),
+                    new VisionIOLimelight(VisionConstants.camera1Name, robotDrive::getRobotRotation)
+                    );
+
+
+
                 break;
             case SIM:
                robotDrive = new Drive( new Module[] {
@@ -75,6 +94,15 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {});
+
+                vision =
+                new Vision(
+                    robotDrive::addVisionMeasurement,
+                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation),
+                    new VisionIOLimelight(VisionConstants.camera1Name, robotDrive::getRobotRotation)
+                    );
+
+
                 break;
             default:
                robotDrive = new Drive( new Module[] {
@@ -83,6 +111,9 @@ public class RobotContainer {
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {});
+
+                vision = new Vision(null, null, null);
+
                 break;
         }
 
@@ -157,50 +188,22 @@ public class RobotContainer {
         if (useCompetitionBindings) {
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
-            // getPOV == -1 if nothing is pressed, so if it doesn't return that
-            // then pov control is being used as its being pressed
-            // new Trigger(()-> driverController.getHID().getPOV() != -1)
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            // driverController.a()
-            //     .onTrue(GoalPoseChooser.setSideCommand(SIDE.ALGAE)
-            //     .andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_ALGAE)))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.x()
+                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
+                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
+            driverController.leftBumper()
+                .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            // driverController.b()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.rightBumper()
+                .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            // driverController.x()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.leftBumper()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LEFT))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.rightBumper()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.RIGHT))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.leftTrigger()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.UP))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.rightTrigger()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DOWN))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // BOI ignore ts //
-            // driverController.rightBumper()
-            // .onTrue(Commands.runOnce(() -> intake.setPivotVoltage(-1)))
-            // .onFalse(Commands.runOnce(() -> intake.setPivotVoltage(0)));
-
-            // driverController.leftBumper()
-            // .onTrue(Commands.runOnce(() -> intake.setPivotVoltage(1)))
-            // .onFalse(Commands.runOnce(() -> intake.setPivotVoltage(0)));
+    
 
             
         } 
@@ -227,9 +230,7 @@ public class RobotContainer {
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.a()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+      
         }
     }
 
