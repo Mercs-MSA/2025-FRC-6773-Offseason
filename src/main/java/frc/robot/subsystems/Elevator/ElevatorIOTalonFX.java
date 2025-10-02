@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,28 +23,38 @@ import frc.robot.subsystems.Elevator.ElevatorConstants.ElevatorMotorConfiguratio
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-    private final TalonFX kMotor;
+    private final TalonFX kMotorLeft;
+    private final TalonFX kMotorRight;
 
     private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    private StatusSignal<Angle> positionRotations;
-    private StatusSignal<AngularVelocity> velocityRotationsPerSec;
-    private StatusSignal<Voltage> appliedVolts;
-    private StatusSignal<Current> supplyCurrentAmps;
-    private StatusSignal<Current> statorCurrentAmps;
-    private StatusSignal<Temperature> temperatureCelsius;
+    private StatusSignal<Angle> positionRotationsLeft;
+    private StatusSignal<AngularVelocity> velocityRotationsPerSecLeft;
+    private StatusSignal<Voltage> appliedVoltsLeft;
+    private StatusSignal<Current> supplyCurrentAmpsLeft;
+    private StatusSignal<Current> statorCurrentAmpsLeft;
+    private StatusSignal<Temperature> temperatureCelsiusLeft;
+
+    private StatusSignal<Angle> positionRotationsRight;
+    private StatusSignal<AngularVelocity> velocityRotationsPerSecRight;
+    private StatusSignal<Voltage> appliedVoltsRight;
+    private StatusSignal<Current> supplyCurrentAmpsRight;
+    private StatusSignal<Current> statorCurrentAmpsRight;
+    private StatusSignal<Temperature> temperatureCelsiusRight;
 
     private final VoltageOut kVoltageControl = new VoltageOut(0.0);
     private final MotionMagicVoltage kPositionControl = new MotionMagicVoltage(0.0);
 
     private final double kDrumCircumferenceMeters;
 
-    public ElevatorIOTalonFX(String canbus,
-    ElevatorHardware hardware,
-    ElevatorMotorConfiguration configuration,   
-    ElevatorGains gains) 
+    public ElevatorIOTalonFX(
+        ElevatorHardware hardware,
+        ElevatorMotorConfiguration configuration,   
+        ElevatorGains gains) 
     {
-        kMotor = new TalonFX(hardware.motorId(), canbus);
+        kMotorLeft = new TalonFX(hardware.motorIdLeft());
+        kMotorRight = new TalonFX(hardware.motorIdRight());
+        
         kDrumCircumferenceMeters = hardware.drumCircumferenceMeters();
 
         motorConfiguration.Slot0.kP = metersToRotations(gains.p());
@@ -65,58 +76,63 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         motorConfiguration.MotorOutput.NeutralMode = configuration.neutralMode();
         motorConfiguration.MotorOutput.Inverted = configuration.invert() ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
 
-        kMotor.setPosition(0);
+        kMotorLeft.setPosition(0);
+        kMotorRight.setPosition(0);
+
         motorConfiguration.Feedback.SensorToMechanismRatio = hardware.gearing();
 
         motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-        kMotor.getConfigurator().apply(motorConfiguration, 1.0);
+        kMotorLeft.getConfigurator().apply(motorConfiguration, 1.0);
+        kMotorRight.getConfigurator().apply(motorConfiguration, 1.0);
+
+        positionRotationsLeft = kMotorLeft.getPosition();
+        velocityRotationsPerSecLeft = kMotorLeft.getVelocity();
+        appliedVoltsLeft = kMotorLeft.getMotorVoltage();
+        supplyCurrentAmpsLeft = kMotorLeft.getSupplyCurrent();
+        statorCurrentAmpsLeft = kMotorLeft.getStatorCurrent();
+        temperatureCelsiusLeft = kMotorLeft.getDeviceTemp();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(ElevatorConstants.kStatusSignalUpdateFrequencyHz, positionRotationsLeft, velocityRotationsPerSecLeft, appliedVoltsLeft, supplyCurrentAmpsLeft, statorCurrentAmpsLeft, temperatureCelsiusLeft);
+
+        kMotorLeft.optimizeBusUtilization(0.0, 1.0);
+        kMotorRight.optimizeBusUtilization(0.0, 1.0);
         
-        positionRotations = kMotor.getPosition();
-        velocityRotationsPerSec = kMotor.getVelocity();
-        appliedVolts = kMotor.getMotorVoltage();
-        supplyCurrentAmps = kMotor.getSupplyCurrent();
-        statorCurrentAmps = kMotor.getStatorCurrent();
-        temperatureCelsius = kMotor.getDeviceTemp();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(ElevatorConstants.kStatusSignalUpdateFrequencyHz, positionRotations, velocityRotationsPerSec, appliedVolts, supplyCurrentAmps, statorCurrentAmps, temperatureCelsius);
-
-        kMotor.optimizeBusUtilization(0.0, 1.0);
-
+        kMotorRight.setControl(new Follower(hardware.motorIdLeft(), true));
     }
 
     
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
-        inputs.isMotorConnected = BaseStatusSignal.refreshAll(positionRotations, velocityRotationsPerSec, appliedVolts, supplyCurrentAmps, statorCurrentAmps, temperatureCelsius)
+        inputs.isMotorConnected = BaseStatusSignal.refreshAll(positionRotationsLeft, velocityRotationsPerSecLeft, appliedVoltsLeft, supplyCurrentAmpsLeft, statorCurrentAmpsLeft, temperatureCelsiusLeft)
         .isOK();
 
-        inputs.positionMeters = rotationsToMeters(positionRotations.getValueAsDouble());
-        inputs.velocityMetersPerSec = rotationsToMeters(velocityRotationsPerSec.getValueAsDouble());
-        inputs.appliedVolts = appliedVolts.getValueAsDouble();
-        inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
-        inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
-        inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
+        inputs.positionMeters = rotationsToMeters(positionRotationsLeft.getValueAsDouble());
+        inputs.velocityMetersPerSec = rotationsToMeters(velocityRotationsPerSecLeft.getValueAsDouble());
+        inputs.appliedVolts = appliedVoltsLeft.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrentAmpsLeft.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrentAmpsLeft.getValueAsDouble();
+        inputs.temperatureCelsius = temperatureCelsiusLeft.getValueAsDouble();
     }
 
     @Override
     public void setVoltage(double volts) {
-        kMotor.setControl(kVoltageControl.withOutput(volts));
+        kMotorLeft.setControl(kVoltageControl.withOutput(volts));
     }
 
     @Override
     public void setPosition(double positionMeters) {
-        kMotor.setControl(kPositionControl.withPosition(rotationsToMeters(positionMeters)).withSlot(0));
+        kMotorLeft.setControl(kPositionControl.withPosition(rotationsToMeters(positionMeters)).withSlot(0));
     }
 
     @Override
     public void stop() {
-        kMotor.stopMotor();
+        kMotorLeft.stopMotor();
     }
 
     @Override
     public void resetPosition() {
-        kMotor.setPosition(0.0);
+        kMotorLeft.setPosition(0.0);
     }
 
     @Override
@@ -129,7 +145,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         slot0.kV = metersToRotations(v);
         slot0.kG = g;
 
-        kMotor.getConfigurator().apply(slot0);
+        kMotorLeft.getConfigurator().apply(slot0);
     }
 
     @Override
@@ -139,12 +155,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         motionMagic.MotionMagicAcceleration = metersToRotations(maxAcceleration);
         motionMagic.MotionMagicJerk = 10 * metersToRotations(maxAcceleration);
 
-        kMotor.getConfigurator().apply(motionMagic);
+        kMotorLeft.getConfigurator().apply(motionMagic);
     }
 
     @Override
     public void setBrakeMode(boolean brake) {
-        kMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+        kMotorLeft.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
     private double rotationsToMeters(double rotations) {

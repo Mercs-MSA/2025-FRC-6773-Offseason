@@ -4,6 +4,7 @@
 
 package frc.robot;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -14,15 +15,22 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.Elevator.Elevator;
+import frc.robot.subsystems.Elevator.ElevatorConstants;
+import frc.robot.subsystems.Elevator.ElevatorIO;
+import frc.robot.subsystems.Elevator.ElevatorIOSim;
+import frc.robot.Constants;
+import frc.robot.subsystems.Elevator.ElevatorIOTalonFX;
+import frc.robot.utils.debugging.SysIDCharacterization;
 
 public class RobotContainer {
     // Define subsystems
@@ -30,9 +38,10 @@ public class RobotContainer {
     // Define other utility classes
     
     private LoggedDashboardChooser<Command> autoChooser;
-    
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
+    private final Elevator m_Elevator;
+
 
     /* TODO: Set to true before competition
      please */
@@ -43,8 +52,17 @@ public class RobotContainer {
     private final EventLoop teleopLoop = new EventLoop();
 
     public RobotContainer() {
-
-
+        switch (Constants.kCurrentMode) {
+            case REAL:
+                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains));   
+                break;
+            case SIM:
+                m_Elevator = new Elevator(new ElevatorIOSim(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kSimulationConfiguration, ElevatorConstants.kElevatorGains, 0.0, 10.0, 1.0));
+                break;
+            default:
+                m_Elevator = new Elevator(new ElevatorIOSim(null, null, null, 0, 0, 0));
+                break;
+        }
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
 
@@ -52,6 +70,7 @@ public class RobotContainer {
 
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
         configureButtonBindings();
+            
     }
 
     /* Commands to schedule on telop start-up */
@@ -76,6 +95,7 @@ public class RobotContainer {
         //         /* Do not require robot drive or it will deschedule auto */);
     }
 
+
     private Command rumbleCommandOperator() {
         return Commands.startEnd(
             () -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 1.0), 
@@ -97,8 +117,8 @@ public class RobotContainer {
 
 
 
-
         if (useCompetitionBindings) {
+
             // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
@@ -150,7 +170,7 @@ public class RobotContainer {
         } 
 
         else {
-
+            driverController.x().onTrue(SysIDCharacterization.runElevatorSysIDTests((voltage) -> m_Elevator.setVoltage(voltage), m_Elevator));
             // driverController.x()
             //     .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
             //         robotDrive.runMOICharacterization(20), robotDrive)))

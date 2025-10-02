@@ -20,7 +20,8 @@ public class ElevatorConstants {
   public static final boolean kHomeWithCurrent = false;
 
   public record ElevatorHardware (
-      int motorId, 
+      int motorIdLeft,
+      int motorIdRight, 
       double gearing, 
       double drumRadiusMeters, 
       double drumCircumferenceMeters) {}
@@ -58,7 +59,8 @@ public class ElevatorConstants {
       double measurementStdDevs) {}
 
   public static final ElevatorHardware kRoboElevatorHardware = new ElevatorHardware(
-    50, // Motor CAN ID
+    51,
+    52, // Motor CAN ID
     15.0 / 1.0,  // Gearing
     /*
     * Outside sprocket radius: 0.944 in
@@ -75,7 +77,7 @@ public class ElevatorConstants {
       0.0,
       2.0, //2.947
       8.5, // 22
-      0.0,
+      0.4,
       0.1,
       0.5,
       0.0, // 0.01
