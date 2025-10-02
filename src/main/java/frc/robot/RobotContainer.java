@@ -35,6 +35,7 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.CameraIO;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
+import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
-    // private final Vision vision;
+    private final Vision vision;
     
     // Define other utility classes
     
@@ -70,35 +71,57 @@ public class RobotContainer {
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
-               robotDrive = new Drive( new Module[] {
-                    new Module("FL", new ModuleIOKraken(kFrontLeftHardware )),
+            robotDrive = new Drive(
+                new Module[] {
+                    new Module("FL", new ModuleIOKraken(kFrontLeftHardware)),
                     new Module("FR", new ModuleIOKraken(kFrontRightHardware)),
-                    new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
-                    new Module("BR", new ModuleIOKraken(kBackRightHardware ))
-                }, new GyroIOPigeon2());
+                    new Module("BL", new ModuleIOKraken(kBackLeftHardware)),
+                    new Module("BR", new ModuleIOKraken(kBackRightHardware))
+                },
+                new GyroIOPigeon2(),
+                null
+            );
+
+            vision = new Vision(new CameraIO[] {
+                new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+            });
+
+            robotDrive.setVision(vision);
+            break;
 
 
-
-
-                break;
             case SIM:
+
                robotDrive = new Drive( new Module[] {
                     new Module("FL", new ModuleIOSim()),
                     new Module("FR", new ModuleIOSim()),
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
-                }, new GyroIO() {});
+                }, new GyroIO() {}, null);
+
+                vision = new Vision(new CameraIO[] {
+                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+    
+                robotDrive.setVision(vision);
 
 
 
                 break;
             default:
+                
                robotDrive = new Drive( new Module[] {
                     new Module("FL", new ModuleIO() {}),
                     new Module("FR", new ModuleIO() {}),
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
-                }, new GyroIO() {});
+                }, new GyroIO() {}, null);
+
+                vision = new Vision(new CameraIO[] {
+                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+    
+                robotDrive.setVision(vision);
 
 
                 break;

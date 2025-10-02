@@ -89,7 +89,7 @@ public class Drive extends SubsystemBase{
     private Module[] modules;
     private GyroIO gyro;
     private GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
-    private Vision vision;
+    private Vision vision = null;
 
 
     /* LOCALIZATION(tracks position and orientation of robot) */
@@ -135,7 +135,7 @@ public class Drive extends SubsystemBase{
     Debouncer autoAlignTimeout = new Debouncer(0.1, DebounceType.kRising);
     Debouncer autoAlignDelay = new Debouncer(0.1, DebounceType.kRising);
 
-    public Drive(Module[] modules, GyroIO gyro) {
+    public Drive(Module[] modules, GyroIO gyro, Vision vision) {
         this.modules = modules;
         this.gyro = gyro;
 
@@ -182,6 +182,11 @@ public class Drive extends SubsystemBase{
 
         headingController.setHeadingGoal(() -> goalRotation);
     }
+
+        /* allow Vision to be set later if needed (avoids immediate NPE) */
+    public void setVision(Vision vision) {
+            this.vision = vision;
+        }
 
     public Command customFollowPathComamnd(PathPlannerPath path) {
         return new FollowPathCommand(
