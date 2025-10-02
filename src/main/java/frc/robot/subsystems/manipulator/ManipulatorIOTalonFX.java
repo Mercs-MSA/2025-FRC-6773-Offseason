@@ -6,6 +6,8 @@ package frc.robot.subsystems.manipulator;
 
 import java.util.function.BiConsumer;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -22,6 +24,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.manipulator.ManipulatorConstants.ManipulatorHardware;
 import frc.robot.subsystems.manipulator.ManipulatorConstants.ManipulatorTalonFXConfiguration;
@@ -33,13 +36,11 @@ public class ManipulatorIOTalonFX implements ManipulatorIO {
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
   // Motor data we wish to log
-  private StatusSignal<Angle> positionRotations;
   private StatusSignal<AngularVelocity> velocityRotationsPerSec;
   private StatusSignal<Voltage> appliedVolts;
   private StatusSignal<Current> supplyCurrentAmps;
   private StatusSignal<Current> statorCurrentAmps;
   private StatusSignal<Temperature> temperatureCelsius;
-  private StatusSignal<Boolean> detectsCoral;
 
   // Control modes
   private final VoltageOut kVoltageControl = new VoltageOut(0.0);
@@ -54,30 +55,11 @@ public class ManipulatorIOTalonFX implements ManipulatorIO {
 
     kBeamBreak = new DigitalInput(hardware.beamBreakIO());
 
-    BiConsumer<Boolean, Boolean> callback = (risingEdge, fallingEdge) -> {
-        if (risingEdge){
-            detectsCoral = false;
-            // RobotContainer.stopEverything();
-        }
-        if (fallingEdge){
-            detectsCoral = true;
-            //RobotContainer.stopEverything();
-            // RobotContainer.prepShooter();
-        }
-        // RobotContainer.stopEverything();
-    };
-
     motorConfiguration.MotorOutput.NeutralMode = configuration.neutralMode();
     motorConfiguration.MotorOutput.Inverted = 
       configuration.invert() 
         ? InvertedValue.CounterClockwise_Positive 
         : InvertedValue.Clockwise_Positive;
-
-    // Rotor sensor is the built-in sensor
-    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    // Enable to true because arm
-    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
-    
     kMotor.getConfigurator().apply(motorConfiguration, 1.0);
         
     // Get status signals from the motor controller
@@ -123,8 +105,8 @@ public class ManipulatorIOTalonFX implements ManipulatorIO {
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
     inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
-
-
+    
+    inputs.beambreakBroken = kBeamBreak.get();
   }
 
   @Override

@@ -16,7 +16,7 @@ public interface ManipulatorIO {
     public double statorCurrentAmps = 0.0;
     public double temperatureCelsius = 0.0;
 
-    public boolean beakbreakBroken = false;
+    public boolean beambreakBroken = false;
   }
 
   /**

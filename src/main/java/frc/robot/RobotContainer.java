@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.manipulator.ManipulatorConstants;
+import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,19 +45,21 @@ public class RobotContainer {
     // Anshul said to use this because he loves event loops
     private final EventLoop teleopLoop = new EventLoop();
 
+    private final Manipulator manipulator;
+
     public RobotContainer() {
 
 
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
-
+                manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
                 break;
             case SIM:
-
+                manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
                 break;
             default:
-
+                manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
                 break;
         }
 

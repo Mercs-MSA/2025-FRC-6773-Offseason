@@ -16,12 +16,15 @@ public class  ManipulatorConstants {
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
 
+  public static final double kRollerIntakeVoltage = 4.0;
+  public static final double kRollerOuttakeVoltage = -5.0;
+
   public static final ManipulatorHardware kManipulatorHardware = new ManipulatorHardware(
     43, // Motor CAN ID
     1 // Beakbreak IO
     ); 
 
-  public static final ManipulatorTalonFXConfiguration kPivotMotorConfiguration = new ManipulatorTalonFXConfiguration(
+  public static final ManipulatorTalonFXConfiguration kMotorConfiguration = new ManipulatorTalonFXConfiguration(
     false, // Invert
     NeutralModeValue.Brake); // Idle mode
 }
