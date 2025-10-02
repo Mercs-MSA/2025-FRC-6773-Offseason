@@ -85,7 +85,7 @@ public class Vision {
             }
         }
 
-        // If no trustworthy tags remain, return an invalid observation
+        // If no trustworthy tags remain return an invlid observation
         if (numberOfTargets <= 0) {
             return invalidObservation(camData);
         }
@@ -113,7 +113,7 @@ public class Vision {
             );
         }
 
-        // Case: multiple tags
+        // multiple tags
         return new VisionObservation(
             true,
             camData.latestEstimatedRobotPose.toPose2d(),
@@ -126,7 +126,7 @@ public class Vision {
         );
     }
 
-    /** Builds an invalid observation (e.g., no targets or ambiguous). */
+    /** Builds an invalid observation */
     private VisionObservation invalidObservation(CameraIOInputsAutoLogged camData) {
         return new VisionObservation(
             false,
@@ -137,7 +137,7 @@ public class Vision {
         );
     }
 
-    /** Estimates robot pose from a single tag, with optional transform correction. */
+    /** Estimates robot pose from a single */
     private Pose2d estimateSingleTagPose(CameraIOInputsAutoLogged camData) {
         if (KUseSingleTagTransform) {
             return fieldLayout.getTagPose(camData.singleTagAprilTagID).get().toPose2d()
@@ -158,7 +158,7 @@ public class Vision {
             transform.getRotation().toRotation2d());
     }
 
-    /** Logs a vision observation for debugging. */
+    /** Log. */
     public void logVisionObservation(VisionObservation observation, String state) {
         Logger.recordOutput("Vision/Observation/" + observation.camName() + "/State", state);
         Logger.recordOutput("Vision/Observation/" + observation.camName() + "/Timestamp", observation.timeStamp());
@@ -167,7 +167,6 @@ public class Vision {
         Logger.recordOutput("Vision/Observation/" + observation.camName() + "/StdDevs", observation.stdDevs());
     }
 
-    /** Record structure for per-camera vision results. */
     public record VisionObservation(
         boolean hasObserved,
         Pose2d pose,
