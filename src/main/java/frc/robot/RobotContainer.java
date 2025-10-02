@@ -32,7 +32,7 @@ import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.CameraIO;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
@@ -47,7 +47,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
-    private final Vision vision;
+    // private final Vision vision;
     
     // Define other utility classes
     
@@ -77,12 +77,6 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2());
 
-                vision =
-                new Vision(
-                    robotDrive::addVisionMeasurement,
-                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation),
-                    new VisionIOLimelight(VisionConstants.camera1Name, robotDrive::getRobotRotation)
-                    );
 
 
 
@@ -95,12 +89,6 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {});
 
-                vision =
-                new Vision(
-                    robotDrive::addVisionMeasurement,
-                    new VisionIOLimelight(VisionConstants.camera0Name, robotDrive::getRobotRotation),
-                    new VisionIOLimelight(VisionConstants.camera1Name, robotDrive::getRobotRotation)
-                    );
 
 
                 break;
@@ -112,7 +100,6 @@ public class RobotContainer {
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {});
 
-                vision = new Vision(null, null, null);
 
                 break;
         }

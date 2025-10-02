@@ -15,8 +15,12 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class VisionConstants {
   // AprilTag layout
@@ -42,6 +46,16 @@ public class VisionConstants {
   // (Adjusted automatically based on distance and # of tags)
   public static double linearStdDevBaseline = 0.02; // Meters
   public static double angularStdDevBaseline = 0.06; // Radians
+
+   public static final Vector<N3> kSingleStdDevs = (RobotBase.isReal()) ?
+        VecBuilder.fill(0.274375, 0.274375, 5.0) : VecBuilder.fill(0.23, 0.23, 5.0);
+    public static final Vector<N3> kMultiStdDevs = (RobotBase.isReal()) ?
+        VecBuilder.fill(0.23188, 0.23188, 5.0) : VecBuilder.fill(0.23, 0.23, 5.0);
+
+    public static final double kAmbiguityThreshold = (RobotBase.isReal()) ? 0.2 : 1.0;
+
+    public static final boolean KUseSingleTagTransform = false;
+
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)

@@ -43,7 +43,8 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.CHOOSER_STRATEGY;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
-import frc.robot.subsystems.vision.Vision.VisionConsumer;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Vision.VisionObservation;
 import frc.robot.subsystems.drive.controllers.ManualTeleopController;
 import frc.robot.subsystems.drive.controllers.HolonomicController;
 
@@ -63,7 +64,7 @@ import org.littletonrobotics.junction.Logger;
  * This code is a swerve drivebase 
  * Main logic is handled in periodic() function
  */
-public class Drive extends SubsystemBase implements VisionConsumer{
+public class Drive extends SubsystemBase{
     public static enum DriveState {
         // TELEOP AND AUTON CONTROLS
         TELEOP,
@@ -88,6 +89,8 @@ public class Drive extends SubsystemBase implements VisionConsumer{
     private Module[] modules;
     private GyroIO gyro;
     private GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
+    private Vision vision;
+
 
     /* LOCALIZATION(tracks position and orientation of robot) */
     private Rotation2d robotRotation;
@@ -243,6 +246,19 @@ public class Drive extends SubsystemBase implements VisionConsumer{
                     + getRobotChassisSpeeds().omegaRadiansPerSecond * 0.02) 
                     /* Scopes result between 0 and 360 */
                     % 360.0);
+        }
+
+        /* VISION */
+        vision.periodic(poseEstimator.getEstimatedPosition(), odometry.getPoseMeters());
+        VisionObservation[] observations = vision.getVisionObservations();
+        for(VisionObservation observation : observations) {
+            if(observation.hasObserved()) poseEstimator.addVisionMeasurement(
+                observation.pose(), observation.timeStamp(), observation.stdDevs());
+
+            Logger.recordOutput(observation.camName()+"/stdDevX", observation.stdDevs().get(0));
+            Logger.recordOutput(observation.camName()+"/stdDevY", observation.stdDevs().get(1));
+            Logger.recordOutput(observation.camName()+"/stdDevTheta", observation.stdDevs().get(2));
+            // Logger.recordOutput(observation.camName()+"/TransformFromOdometry", odometry.getPoseMeters().minus(observation.pose()));
         }
 
 
@@ -653,7 +669,7 @@ public class Drive extends SubsystemBase implements VisionConsumer{
         return autoAlignController.atGoal();
     }
 
-    @Override
+//    Delete THISISISISISIS
     public void accept(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
