@@ -122,8 +122,9 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
             driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)));
-            driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kIntake)));
-
+            driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+            driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
+            driverController.rightBumper().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.custom)));
             // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that

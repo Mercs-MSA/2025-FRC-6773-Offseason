@@ -9,7 +9,7 @@ import frc.robot.Constants;
 public class ElevatorConstants {
   public static final double kDrumRadiusMeters = Units.inchesToMeters(0.944);
   public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * kDrumRadiusMeters;
-  public static final double kMaxPositionMeters = Units.inchesToMeters(57.0);
+  public static final double kMaxPositionMeters = Units.inchesToMeters(70.0);
   public static final double kMinPositionMeters = Units.inchesToMeters(0.0);
   public static final double kPositionToleranceMeters = 0.01;
 
@@ -72,16 +72,16 @@ public class ElevatorConstants {
   public static final ElevatorGains kElevatorGains = 
   switch (Constants.kCurrentMode) {
     case REAL -> new ElevatorGains(
-      10.0,
+      5.0,
       0.0,
       0.0,
-      2.0, //2.947
-      8.5, // 22
-      0.4,
-      0.1,
-      0.5,
-      0.1, 
-      0.8); // 0.11
+      0.0, //2.947
+      0, // 22
+      0.0,
+      0.0,
+      0,
+      0, 
+      0); // 0.11
     case SIM -> new ElevatorGains(
       1.0,
       0.0,

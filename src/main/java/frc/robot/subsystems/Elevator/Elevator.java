@@ -23,9 +23,9 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
-    kL4Coral(() -> Units.inchesToMeters(60.0)),
+    kL4Coral(() -> Units.inchesToMeters(25.0)),
     kL3Coral(() -> 0.84),
-    kL2Coral(() -> Units.inchesToMeters(13)),
+    kL2Coral(() -> Units.inchesToMeters(20)),
     kL1Coral(() -> Units.inchesToMeters(5.0)),
     kL205Coral(() -> 0.7),
 
@@ -111,6 +111,10 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     kHardware.updateInputs(kInputs);
+    Logger.recordOutput("Elevator/GoalPositionMeters", currentElevatorGoalPositionMeters);
+    Logger.recordOutput("Elevator/Goal", currentElevatorGoal);
+    Logger.recordOutput("Elevator/Actual", getPositionMeters());
+    Logger.recordOutput("Elevator/AtGoal", atGoal());
     Logger.processInputs("Elevator/Inputs", kInputs);
     // kSensor.updateInputs(kSensorInputs);
     // Logger.processInputs("Elevator/Inputs/Sensor", kSensorInputs);
@@ -128,6 +132,7 @@ public class Elevator extends SubsystemBase {
       // Run the elevator goal
       if (currentElevatorGoal != null) {
         currentElevatorGoalPositionMeters = currentElevatorGoal.getGoalMeters();
+        
         
         // if (atGoal()) {
         //   kHardware.setVoltage(ElevatorConstants.kElevatorGains.g() - 0.05);
@@ -147,8 +152,8 @@ public class Elevator extends SubsystemBase {
         //   Logger.recordOutput("Elevator/Goal", currentElevatorGoal);
         // }
         // setPosition(currentElevatorGoalPositionMeters);
-        Logger.recordOutput("Elevator/Goal", currentElevatorGoal);
-
+        
+        Logger.processInputs("Elevator/Inputs", kInputs);
         kVisualizer.setGoalLine(currentElevatorGoalPositionMeters, atGoal());
       } else {
         Logger.recordOutput("Elevator/Goal", "NONE");
@@ -293,8 +298,8 @@ public class Elevator extends SubsystemBase {
    * @param positionGoalMeters The position goal in meters
    */
   public void setPosition(double positionGoalMeters) {
-    positionGoalMeters = MathUtil.clamp(
-      positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
+    // positionGoalMeters = MathUtil.clamp(
+    //   positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
     kHardware.setPosition(positionGoalMeters);
   }
 
