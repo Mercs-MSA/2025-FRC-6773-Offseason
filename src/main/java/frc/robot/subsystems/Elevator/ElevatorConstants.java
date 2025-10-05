@@ -9,7 +9,7 @@ import frc.robot.Constants;
 public class ElevatorConstants {
   public static final double kDrumRadiusMeters = Units.inchesToMeters(0.944);
   public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * kDrumRadiusMeters;
-  public static final double kMaxPositionMeters = Units.inchesToMeters(39.0);
+  public static final double kMaxPositionMeters = Units.inchesToMeters(57.0);
   public static final double kMinPositionMeters = Units.inchesToMeters(0.0);
   public static final double kPositionToleranceMeters = 0.01;
 
@@ -61,7 +61,7 @@ public class ElevatorConstants {
   public static final ElevatorHardware kRoboElevatorHardware = new ElevatorHardware(
     51,
     52, // Motor CAN ID
-    15.0 / 1.0,  // Gearing
+    9.0 / 1.0,  // Gearing
     /*
     * Outside sprocket radius: 0.944 in
     * Root sprocket radius: 0.819
@@ -80,7 +80,7 @@ public class ElevatorConstants {
       0.4,
       0.1,
       0.5,
-      0.0, // 0.01
+      0.1, 
       0.8); // 0.11
     case SIM -> new ElevatorGains(
       1.0,

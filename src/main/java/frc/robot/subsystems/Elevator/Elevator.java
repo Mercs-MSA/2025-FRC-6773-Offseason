@@ -25,7 +25,7 @@ public class Elevator extends SubsystemBase {
   public enum ElevatorGoal {
     kL4Coral(() -> Units.inchesToMeters(60.0)),
     kL3Coral(() -> 0.84),
-    kL2Coral(() -> 0.41),
+    kL2Coral(() -> Units.inchesToMeters(13)),
     kL1Coral(() -> Units.inchesToMeters(5.0)),
     kL205Coral(() -> 0.7),
 

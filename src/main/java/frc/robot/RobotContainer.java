@@ -4,6 +4,7 @@
 
 package frc.robot;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -30,7 +31,9 @@ import frc.robot.subsystems.Elevator.ElevatorIO;
 import frc.robot.subsystems.Elevator.ElevatorIOSim;
 import frc.robot.Constants;
 import frc.robot.subsystems.Elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.Elevator.Elevator.ElevatorGoal;
 import frc.robot.utils.debugging.SysIDCharacterization;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 public class RobotContainer {
     // Define subsystems
@@ -118,6 +121,8 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
+            driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)));
+            driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kIntake)));
 
             // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
