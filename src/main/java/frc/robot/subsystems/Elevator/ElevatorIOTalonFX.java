@@ -123,7 +123,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void setPosition(double positionMeters) {
-        kMotorLeft.setControl(kPositionControl.withPosition(rotationsToMeters(positionMeters)).withSlot(0));
+        kMotorLeft.setControl(kPositionControl.withPosition(metersToRotations(positionMeters)).withSlot(0));
     }
 
     @Override

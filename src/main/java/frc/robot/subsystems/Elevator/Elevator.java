@@ -23,7 +23,7 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
-    kL4Coral(() -> Units.inchesToMeters(25.0)),
+    kL4Coral(() -> Units.inchesToMeters(55.0)),
     kL3Coral(() -> 0.84),
     kL2Coral(() -> Units.inchesToMeters(20)),
     kL1Coral(() -> Units.inchesToMeters(5.0)),
@@ -35,7 +35,7 @@ public class Elevator extends SubsystemBase {
     kProcessor(() -> 0.3 - 0.15),
     kGroundAlgae(() -> Units.inchesToMeters(8.0)),
     /** Stow the elevator during transit */
-    kStow(() -> Units.inchesToMeters(3.0)),
+    kStow(() -> Units.inchesToMeters(0)),
     /** Position for intaking from the coral station */
     kIntake(() -> Units.inchesToMeters(0.0)),
     /** Custom setpoint that can be modified over network tables; Usefu for debugging */
@@ -297,7 +297,7 @@ public class Elevator extends SubsystemBase {
    * 
    * @param positionGoalMeters The position goal in meters
    */
-  public void setPosition(double positionGoalMeters) {
+  public void setPosition(double positionGoalMeters) { //TODO: readd clamp limits
     // positionGoalMeters = MathUtil.clamp(
     //   positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
     kHardware.setPosition(positionGoalMeters);

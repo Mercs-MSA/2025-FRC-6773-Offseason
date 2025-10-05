@@ -9,8 +9,8 @@ import frc.robot.Constants;
 public class ElevatorConstants {
   public static final double kDrumRadiusMeters = Units.inchesToMeters(0.944);
   public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * kDrumRadiusMeters;
-  public static final double kMaxPositionMeters = Units.inchesToMeters(70.0);
-  public static final double kMinPositionMeters = Units.inchesToMeters(0.0);
+  public static final double kMaxPositionMeters = Units.inchesToMeters(57.0);
+  public static final double kMinPositionMeters = Units.inchesToMeters(-0.1);
   public static final double kPositionToleranceMeters = 0.01;
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
