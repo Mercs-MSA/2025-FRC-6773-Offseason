@@ -22,7 +22,7 @@ public class AutonCommands {
         double totalTimeSeconds = path.getIdealTrajectory(Drive.robotConfig).get().getTotalTimeSeconds();
         return 
             robotDrive.setDriveStateCommand(DriveState.AUTON).andThen(
-                robotDrive.customFollowPathComamnd(path).withTimeout(totalTimeSeconds), 
+                robotDrive.customFollowPathCommand(path).withTimeout(totalTimeSeconds), 
                 robotDrive.setDriveStateCommand(DriveState.STOP));
     }
 
@@ -32,7 +32,7 @@ public class AutonCommands {
         double totalTimeSeconds = path.getIdealTrajectory(Drive.robotConfig).get().getTotalTimeSeconds();
         return 
             robotDrive.setDriveStateCommand(DriveState.AUTON).andThen(
-                robotDrive.customFollowPathComamnd(path, PID).withTimeout(totalTimeSeconds), 
+                robotDrive.customFollowPathCommand(path, PID).withTimeout(totalTimeSeconds), 
                 robotDrive.setDriveStateCommand(DriveState.STOP));
     }
 

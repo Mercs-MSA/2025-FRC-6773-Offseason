@@ -181,7 +181,7 @@ public class Drive extends SubsystemBase {
         headingController.setHeadingGoal(() -> goalRotation);
     }
 
-    public Command customFollowPathComamnd(PathPlannerPath path) {
+    public Command customFollowPathCommand(PathPlannerPath path) {
         return new FollowPathCommand(
             path,
             this::getPoseEstimate,
@@ -197,7 +197,7 @@ public class Drive extends SubsystemBase {
             this);
     }
 
-    public Command customFollowPathComamnd(PathPlannerPath path, PPHolonomicDriveController drivePID) {
+    public Command customFollowPathCommand(PathPlannerPath path, PPHolonomicDriveController drivePID) {
         return new FollowPathCommand(
             path,
             this::getPoseEstimate,
