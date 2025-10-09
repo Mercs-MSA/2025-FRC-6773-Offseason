@@ -24,6 +24,7 @@ public class Intake extends SubsystemBase {
   public enum IntakePivotGoal {
     kFloorPickup(() -> Rotation2d.fromDegrees(64.0)),
     kStationPickup(() -> Rotation2d.fromDegrees(54.0)),
+    temp(() -> Rotation2d.fromDegrees(0.0)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(
       new LoggedTunableNumber("Intake/Feedback/PivotSetpointDegrees", 0.0).get()));

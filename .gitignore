@@ -185,3 +185,16 @@ compile_commands.json
 
 # Version file
 src/main/java/frc/robot/BuildConstants.java
+src/main/deploy/choreo/BRREEF_SB.traj
+src/main/deploy/choreo/NewPaths.chor
+src/main/deploy/choreo/NewPaths/BRREEF_SB.traj
+src/main/deploy/choreo/NewPaths/RREEF_SB.traj
+src/main/deploy/choreo/NewPaths/STB_BRREEF.traj
+src/main/deploy/choreo/NewPaths/STB_RREEF.traj
+src/main/deploy/choreo/NewPaths/STB_TRREEF.traj
+src/main/deploy/choreo/NewPaths/STM_BRREEF.traj
+src/main/deploy/choreo/NewPaths/STM_RREEF.traj
+src/main/deploy/choreo/NewPaths/STM_TRREEF.traj
+src/main/deploy/choreo/NewPaths/STT_BRREEF.traj
+src/main/deploy/choreo/NewPaths/STT_RREEF.traj
+src/main/deploy/choreo/NewPaths/STT_TRREEF.traj
