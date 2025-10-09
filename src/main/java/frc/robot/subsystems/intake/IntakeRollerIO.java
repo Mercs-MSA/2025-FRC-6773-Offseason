@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 /** The 2 bar intake subsystem's hardware interface */
 public interface IntakeRollerIO {
-  @AutoLog
   public static class IntakeRollerIOInputs {
     public boolean isMotorConnected = false;
 
