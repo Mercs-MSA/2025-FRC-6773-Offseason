@@ -186,11 +186,11 @@ public class RobotContainer {
 
             driverController.a()
                 .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
-                .onFalse(teleopCommands.stopPivotCommand());
+                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
             driverController.b()
                 .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStationPickup))
-                .onFalse(teleopCommands.stopPivotCommand());
+                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
             driverController.rightBumper()
                 .onTrue(teleopCommands.toggleRollerCommand());

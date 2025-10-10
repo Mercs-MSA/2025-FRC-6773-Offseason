@@ -128,10 +128,10 @@ public class IntakeConstants {
 
   /* Pivot constants */
   
-  public static final Rotation2d kMinPivotPosition = Rotation2d.fromDegrees(-70.0);
-  public static final Rotation2d kMaxPivotPosition = Rotation2d.fromDegrees(64.331);
+  public static final Rotation2d kMinPivotPosition = Rotation2d.fromRotations(-0.29);
+  public static final Rotation2d kMaxPivotPosition = Rotation2d.fromRotations(0.1);
 
-  public static final Rotation2d kPivotPositionTolerance = Rotation2d.fromDegrees(0.5);
+  public static final Rotation2d kPivotPositionTolerance = Rotation2d.fromRotations(0.01);
   
   public static final double kPivotGearing = (23.0 / 1.0) * (64.0 / 12.0); //TODO Check this value
 
@@ -179,7 +179,7 @@ public class IntakeConstants {
     };
 
   public static final IntakePivotTalonFXConfiguration kPivotMotorConfiguration = new IntakePivotTalonFXConfiguration(
-    true, // Invert
+    false, // Invert
     true, // Enable stator current limiting
     true, // Enable supply current limiting
     60.0, // Stator limit

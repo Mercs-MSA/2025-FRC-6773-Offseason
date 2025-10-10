@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.intake;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -80,6 +82,8 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     motorConfiguration.MotionMagic.MotionMagicAcceleration = gains.maxAccelerationRotationsPerSecondSquared();
     motorConfiguration.MotionMagic.MotionMagicJerk = gains.jerkRotationsPerSecondCubed();
 
+    motorConfiguration.Slot1.kG = gains.g();
+
 
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimit = configuration.supplyCurrentLimitAmps();
@@ -108,7 +112,7 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     // Enable to true because arm
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
     
-    kMotor.getConfigurator().apply(motorConfiguration, 1.0);
+    kMotor.getConfigurator().apply(motorConfiguration);
         
     // // Reset position on startup
     // kMotor.setPosition(Rotation2d.fromDegrees(64.331).getRotations()); //UPDATE VALUES
@@ -183,10 +187,15 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
   }
 
   @Override
-  public void setPosition(Rotation2d goalPositionDegrees) {
+  public void setPosition(Rotation2d goalPosition) {
+    boolean withinTolerance = Math.abs(goalPosition.getRotations() - positionRotations.getValueAsDouble()) < IntakeConstants.kPivotPositionTolerance.getRotations();
 
-    kMotor.setControl(kPositionControl.withPosition(goalPositionDegrees.getRotations()).withSlot(0));
+    // kMotor.setControl(kPositionControl.withPosition(goalPosition.getRotations()).withSlot(withinTolerance ? 1 : 0));
+    kMotor.setControl(kPositionControl.withPosition(goalPosition.getRotations()).withSlot(0));
+
   }
+
+  
 
   @Override
   public void stop() {
