@@ -32,8 +32,8 @@ public class RobotContainer {
     
     private LoggedDashboardChooser<Command> autoChooser;
     
-    private final CommandXboxController driverController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
+    public final CommandXboxController driverController = new CommandXboxController(0);
+    public final CommandXboxController operatorController = new CommandXboxController(1);
 
     /* TODO: Set to true before competition
      please */
@@ -101,7 +101,11 @@ public class RobotContainer {
         return Commands.startEnd(
             () -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 1.0), 
             () -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.0));
+
+        
     }
+
+
 
     private Command rumbleCommandDriver() {
         return Commands.startEnd(
