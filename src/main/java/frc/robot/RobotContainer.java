@@ -31,6 +31,9 @@ import frc.robot.subsystems.Elevator.ElevatorIO;
 import frc.robot.subsystems.Elevator.ElevatorIOSim;
 import frc.robot.Constants;
 import frc.robot.subsystems.Elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.manipulator.ManipulatorConstants;
+import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
 import frc.robot.subsystems.Elevator.Elevator.ElevatorGoal;
 import frc.robot.utils.debugging.SysIDCharacterization;
 import pabeles.concurrency.ConcurrencyOps.NewInstance;
@@ -44,6 +47,7 @@ public class RobotContainer {
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
     private final Elevator m_Elevator;
+    private final Manipulator m_Manipulator;
 
 
     /* TODO: Set to true before competition
@@ -57,13 +61,16 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
             case REAL:
-                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains));   
+                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
+                m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));  
                 break;
             case SIM:
                 m_Elevator = new Elevator(new ElevatorIOSim(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kSimulationConfiguration, ElevatorConstants.kElevatorGains, 0.0, 10.0, 1.0));
+                m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
                 break;
             default:
                 m_Elevator = new Elevator(new ElevatorIOSim(null, null, null, 0, 0, 0));
+                m_Manipulator = new Manipulator(null);
                 break;
         }
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
@@ -121,10 +128,11 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
-            driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)));
             driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
-            driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
-            driverController.rightBumper().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.custom)));
+            driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)));
+            driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
+            driverController.leftTrigger().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
+            driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
             // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
