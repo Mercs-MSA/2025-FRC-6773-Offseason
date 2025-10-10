@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class Intake extends SubsystemBase {
   public enum IntakePivotGoal {
-    kFloorPickup(() -> Rotation2d.fromDegrees(64.0)),
-    kStationPickup(() -> Rotation2d.fromDegrees(54.0)),
+    kFloorPickup(() -> Rotation2d.fromRotations(-0.1)),
+    kStationPickup(() -> Rotation2d.fromRotations(-0.24)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(
       new LoggedTunableNumber("Intake/Feedback/PivotSetpointDegrees", 0.0).get()));

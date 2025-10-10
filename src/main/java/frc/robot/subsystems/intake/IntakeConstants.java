@@ -131,9 +131,9 @@ public class IntakeConstants {
   public static final Rotation2d kMinPivotPosition = Rotation2d.fromDegrees(-70.0);
   public static final Rotation2d kMaxPivotPosition = Rotation2d.fromDegrees(64.331);
 
-  public static final Rotation2d kPivotPositionTolerance = Rotation2d.fromDegrees(1.0);
+  public static final Rotation2d kPivotPositionTolerance = Rotation2d.fromDegrees(0.5);
   
-  public static final double kPivotGearing = (48.0 / 1.0) * (48.0 / 22.0); //TODO Fix this value
+  public static final double kPivotGearing = (23.0 / 1.0) * (64.0 / 12.0); //TODO Check this value
 
   public static final double kRollerIntakingVoltage = 4.5;
 
@@ -144,16 +144,16 @@ public class IntakeConstants {
   public static final IntakePivotGains kPivotGains =  
     switch (Constants.kCurrentMode) {
       case REAL -> new IntakePivotGains(
+        12.0,
         0.0,
-        0.0,
-        0.0,
-        1000,
-        0.5,
-        0.025,
-        0.0,
+        0.77,
+        1,
+        2,
+        5,
+        0.2,
         0.0,
         0.0, 
-        0.0); 
+        -0.75); 
       case SIM -> new IntakePivotGains(
         550.0,
         0.0,

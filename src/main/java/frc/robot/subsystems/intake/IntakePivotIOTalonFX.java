@@ -6,17 +6,23 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -30,8 +36,10 @@ import frc.robot.subsystems.intake.IntakeConstants.IntakePivotTalonFXConfigurati
 
 public class IntakePivotIOTalonFX implements IntakePivotIO {
   private final TalonFX kMotor;
+  private final CANcoder kCANCoder;
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+  private CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
 
   // Motor data we wish to log
   private StatusSignal<Angle> positionRotations;
@@ -49,12 +57,18 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     String canbus,
     IntakePivotHardware hardware,
     IntakePivotTalonFXConfiguration configuration,
-    IntakePivotGains gains,
+    IntakePivotGains gains, //0.261
     double statusSignalUpdateFrequency) {
 
     kMotor = new TalonFX(hardware.motorId(), canbus);
+    kCANCoder = new CANcoder(42); //TODO: Device ID
+
 
     // Apply configurations
+    canCoderConfiguration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    canCoderConfiguration.MagnetSensor.MagnetOffset = 0.265625;
+    kCANCoder.getConfigurator().apply(canCoderConfiguration);
+
     motorConfiguration.Slot0.kP = gains.p();
     motorConfiguration.Slot0.kI = gains.i();
     motorConfiguration.Slot0.kD = gains.d();
@@ -66,7 +80,6 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     motorConfiguration.MotionMagic.MotionMagicAcceleration = gains.maxAccelerationRotationsPerSecondSquared();
     motorConfiguration.MotionMagic.MotionMagicJerk = gains.jerkRotationsPerSecondCubed();
 
-    //TODO: Add in the gearing ratio (pivot to throughbore) + add encoder object
 
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimit = configuration.supplyCurrentLimitAmps();
@@ -74,6 +87,8 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     motorConfiguration.CurrentLimits.StatorCurrentLimit = configuration.statorCurrentLimitAmps();
     motorConfiguration.Voltage.PeakForwardVoltage = configuration.peakForwardVoltage();
     motorConfiguration.Voltage.PeakReverseVoltage = configuration.peakReverseVoltage();
+    motorConfiguration.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    motorConfiguration.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
     motorConfiguration.MotorOutput.NeutralMode = configuration.neutralMode();
     motorConfiguration.MotorOutput.Inverted = 
@@ -81,16 +96,22 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
         ? InvertedValue.CounterClockwise_Positive 
         : InvertedValue.Clockwise_Positive;
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = hardware.gearing();
+
+    motorConfiguration.Feedback.SensorToMechanismRatio = 1.0;
+    motorConfiguration.Feedback.RotorToSensorRatio = hardware.gearing();
+    
     // Rotor sensor is the built-in sensor
-    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    motorConfiguration.Feedback.FeedbackRemoteSensorID = kCANCoder.getDeviceID();
+    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
+    
     // Enable to true because arm
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
     
     kMotor.getConfigurator().apply(motorConfiguration, 1.0);
         
-    // Reset position on startup
-    kMotor.setPosition(Rotation2d.fromDegrees(64.331).getRotations()); //UPDATE VALUES
+    // // Reset position on startup
+    // kMotor.setPosition(Rotation2d.fromDegrees(64.331).getRotations()); //UPDATE VALUES
 
     // Get status signals from the motor controller
     positionRotations = kMotor.getPosition();
@@ -111,7 +132,7 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
     // Optimize the CANBus utilization by explicitly telling all CAN signals we
     // are not using to simply not be sent over the CANBus
-    kMotor.optimizeBusUtilization(0.0, 1.0);
+   // kMotor.optimizeBusUtilization(0.0, 1.0);
   }
 
   public IntakePivotIOTalonFX(
@@ -163,8 +184,8 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
   @Override
   public void setPosition(Rotation2d goalPositionDegrees) {
-    kMotor.setControl(
-      kPositionControl.withPosition(goalPositionDegrees.getRotations()).withSlot(0));
+
+    kMotor.setControl(kPositionControl.withPosition(goalPositionDegrees.getRotations()).withSlot(0));
   }
 
   @Override
