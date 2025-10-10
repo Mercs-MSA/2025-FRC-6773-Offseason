@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 /** The 2 bar intake subsystem's hardware interface */
 public interface IntakePivotIO {
   @AutoLog
-  public class IntakePivotIOInputs {
+  public static class IntakePivotIOInputs {
     public boolean isMotorConnected = false;
 
     public Rotation2d position = new Rotation2d();

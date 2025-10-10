@@ -14,13 +14,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerHardware;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerTalonFXConfiguration;
 
 public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     private final TalonFX kMotor;
-    private final DigitalInput kBeamBreak;
+
     private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
     //logged data for roller:
@@ -38,8 +37,6 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         IntakeRollerTalonFXConfiguration configuration,
         double statusSignalUpdateFrequency
     ) {
-
-        kBeamBreak = new DigitalInput(IntakeConstants.kIntakeBeamBreakChannel);
         kMotor = new TalonFX(hardware.motorId(), canbus);
 
         motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
@@ -96,10 +93,6 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
   @Override
   public void setVoltage(double volts) {
     kMotor.setControl(kVoltageControl.withOutput(volts));
-  }
-
-  public boolean getBeamBreak() {
-    return kBeamBreak.get();
   }
 
   @Override

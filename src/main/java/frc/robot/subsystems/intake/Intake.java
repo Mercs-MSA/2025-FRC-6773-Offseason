@@ -45,7 +45,7 @@ public class Intake extends SubsystemBase {
   private final IntakeRollerIO kRollerHardware;
   private final IntakeRollerIOInputsAutoLogged kRollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-  private final LoggedTunableNumr kP =
+  private final LoggedTunableNumber kP =
       new LoggedTunableNumber("Intake/Gains/Pivot_kP", IntakeConstants.kPivotGains.p());
   private final LoggedTunableNumber kI =
       new LoggedTunableNumber("Intake/Gains/Pivot_kI", IntakeConstants.kPivotGains.i());
@@ -111,11 +111,7 @@ public class Intake extends SubsystemBase {
 
 
 
-    if (kRollerInputs.beamBreakDetected) {
-      detectedGamepiece = true;
-    } else {
-      detectedGamepiece = false;
-    }
+    
 
     // Check if pivot is attempting to move beyond its limitations
     if (getPivotPosition().getDegrees() > IntakeConstants.kMaxPivotPosition.getDegrees() 
@@ -159,10 +155,6 @@ public class Intake extends SubsystemBase {
 
   public void setPivotGoal(IntakePivotGoal desiredGoal) {
     currentPivotGoal = desiredGoal;
-  }
-
-  public boolean hasGamepiece() {
-    return detectedGamepiece;
   }
 
   public void stop(boolean stopRollers, boolean stopPivot) {

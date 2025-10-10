@@ -95,10 +95,8 @@ public class IntakeConstants {
 
   public static final IntakeRollerHardware kRollerMotorHardware = new IntakeRollerHardware(
     43, // Motor CAN ID
-    2.0 / 1.0 // Gearing
+    2.0 /1.0 // Gearing
     ); 
-
-  public static final int kIntakeBeamBreakChannel = 1;
 
 //   public static final IntakeMotorConfiguration kIntakeMotorConfiguration = new IntakeMotorConfiguration(
 //     false, 
