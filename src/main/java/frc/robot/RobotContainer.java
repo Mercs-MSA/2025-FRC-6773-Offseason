@@ -222,7 +222,7 @@ public class RobotContainer {
             //     .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
-                .onFalse(teleopCommands.stowCommand());
+                .whileFalse(teleopCommands.stowCommand());
             
 
             

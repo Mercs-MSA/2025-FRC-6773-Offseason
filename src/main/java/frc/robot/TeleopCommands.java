@@ -118,7 +118,10 @@ public class TeleopCommands {
     }
 
     public Command stowCommand() {
-        return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);
+        // return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);
+        return !kManipulator.getCoralDetected() ? 
+            runPivotAndHoldCommand(IntakePivotGoal.kStow) :
+            runPivotAndHoldCommand(IntakePivotGoal.kTransfer);
         
     }
 
