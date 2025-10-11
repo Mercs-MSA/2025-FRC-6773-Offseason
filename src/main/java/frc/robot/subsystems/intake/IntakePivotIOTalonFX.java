@@ -32,6 +32,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotGains;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotHardware;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotTalonFXConfiguration;
@@ -42,6 +43,7 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
   private CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
+
 
   // Motor data we wish to log
   private StatusSignal<Angle> positionRotations;
@@ -112,7 +114,7 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     // Enable to true because arm
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
     
-    kMotor.getConfigurator().apply(motorConfiguration);
+    
         
     // // Reset position on startup
     // kMotor.setPosition(Rotation2d.fromDegrees(64.331).getRotations()); //UPDATE VALUES
@@ -137,6 +139,7 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
     // Optimize the CANBus utilization by explicitly telling all CAN signals we
     // are not using to simply not be sent over the CANBus
    // kMotor.optimizeBusUtilization(0.0, 1.0);
+   kMotor.getConfigurator().apply(motorConfiguration, 1);
   }
 
   public IntakePivotIOTalonFX(

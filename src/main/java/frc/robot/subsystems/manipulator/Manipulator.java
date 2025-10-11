@@ -12,11 +12,14 @@ public class Manipulator extends SubsystemBase {
   enum IntakeState {
     INTAKING,
     OUTTAKING,
+    STOWED,
     IDLE,
   }
 
   private final ManipulatorIO kHardware;
   private final ManipulatorIOInputsAutoLogged kInputs = new ManipulatorIOInputsAutoLogged();
+
+  public static final double kStowRollerVoltage = -1.0;
 
   public static final double kRollerIntakeVoltage = -4.0;
   public static final double kRollerOuttakeVoltage = -6.0;
@@ -66,6 +69,12 @@ public class Manipulator extends SubsystemBase {
     mIntakeState = IntakeState.INTAKING;
     kHardware.setVoltage(kRollerIntakeVoltage);
   }
+
+  public void stow() {
+    mIntakeState = IntakeState.STOWED;
+    kHardware.setVoltage(kStowRollerVoltage);
+  }
+
 
   public void outtake() {
     mIntakeState = IntakeState.OUTTAKING;

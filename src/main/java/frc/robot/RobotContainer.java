@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.drive.Drive;
+// import frc.robot.subsystems.drive.Drive;
 // import frc.robot.subsystems.drive.GyroIO;
 // import frc.robot.subsystems.drive.GyroIOPigeon2;
 // import frc.robot.subsystems.drive.ModuleIOKraken;
@@ -141,7 +141,7 @@ public class RobotContainer {
         }
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
-        teleopCommands = new TeleopCommands(intake);
+        teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator);
 
         // robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
 
@@ -213,20 +213,17 @@ public class RobotContainer {
             driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
             driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)));
             driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
-            driverController.leftTrigger().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
+            // driverController.leftBumper().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
-            // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
+            // // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
-            driverController.a()
-                .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
-                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
+            // driverController.leftTrigger()
+            //     .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
+            //     .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
-            driverController.b()
-                .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStationPickup))
-                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
-
-            driverController.rightBumper()
-                .onTrue(teleopCommands.toggleRollerCommand());
+            driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
+                .onFalse(teleopCommands.stowCommand());
+            
 
             
         } 

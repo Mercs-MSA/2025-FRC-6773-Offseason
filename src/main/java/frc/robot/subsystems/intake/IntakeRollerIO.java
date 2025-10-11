@@ -19,6 +19,8 @@ public interface IntakeRollerIO {
     public double supplyCurrentAmps = 0.0;
     public double statorCurrentAmps = 0.0;
     public double temperatureCelsius = 0.0;
+
+    public boolean beamBreakBroken = false;
   }
 
   /**

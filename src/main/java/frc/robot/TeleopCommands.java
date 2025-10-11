@@ -1,11 +1,16 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.Elevator.Elevator;
 // import frc.robot.subsystems.elevator.Elevator;
 // import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.intake.Intake;
 // import frc.robot.subsystems.intake.Intake.Gamepiece;
 import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
+import frc.robot.subsystems.manipulator.Manipulator;
+
+import java.lang.annotation.ElementType;
+
 // import frc.robot.subsystems.intake.Intake.RollerGoal;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,6 +40,8 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 public class TeleopCommands {
     // private final Elevator kElevator;
     private final Intake kIntake;
+    private final Manipulator kManipulator;
+    private final Elevator kElevator;
     // private final Climb kClimb;
 
     /** 
@@ -59,9 +66,11 @@ public class TeleopCommands {
      * @param intake The intake subsystem intance
      * @param climb The climb subsystem instance
      */
-    public TeleopCommands(Intake intake) {
+    public TeleopCommands(Intake intake, Elevator elevator, Manipulator manipulator) {
         // kElevator = elevator;
         kIntake = intake;
+        kElevator = elevator;
+        kManipulator = manipulator;
         // kClimb = climb;
     }
 
@@ -100,12 +109,44 @@ public class TeleopCommands {
             kIntake);
     }
 
+    public Command floorIntakeCommand() {
+        return Commands.parallel(
+            runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup),
+            runRollerCommand(),
+            runManipulatorRollersCommand()
+        );
+    }
+
+    public Command stowCommand() {
+        return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);
+        
+    }
+
+    public Command runManipulatorRollersCommand() {
+        return Commands.runOnce(() -> {
+            kManipulator.intake();
+        });
+    }
+
+    public Command stopManipulatorRollersCommand() {
+        return Commands.runOnce(() -> {
+            kManipulator.stop();
+        });
+    }
+
+    public Command stowRollerCommand() {
+        return Commands.runOnce(() -> {
+            kIntake.stow();
+        });
+    }
+
     public Command runRollerCommand() {
         return Commands.runOnce(() -> {
             stopRollers = false;
             kIntake.runRollers();
         });
     }
+
 
     public Command toggleRollerCommand() {
         return Commands.runOnce(() -> {

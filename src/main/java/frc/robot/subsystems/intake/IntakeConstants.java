@@ -137,6 +137,8 @@ public class IntakeConstants {
 
   public static final double kRollerIntakingVoltage = 4.5;
 
+  public static final double kRollerStowVoltage = 1;
+
   public static final IntakePivotHardware kPivotMotorHardware = new IntakePivotHardware(
     41, // CAN ID
     kPivotGearing); // Gear ratio
@@ -144,7 +146,7 @@ public class IntakeConstants {
   public static final IntakePivotGains kPivotGains =  
     switch (Constants.kCurrentMode) {
       case REAL -> new IntakePivotGains(
-        12.0,
+        40.0,
         0.0,
         0.77,
         1,

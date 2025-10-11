@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerHardware;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerTalonFXConfiguration;
 
@@ -21,6 +22,9 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     private final TalonFX kMotor;
 
     private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+
+    private DigitalInput intakeBeamBreak = new DigitalInput(1);
+
 
     //logged data for roller:
     private StatusSignal<AngularVelocity> velocityRotPerSec;
@@ -88,7 +92,10 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     inputs.supplyCurrentAmps = supplyAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorAmps.getValueAsDouble();
     inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
+
+    inputs.beamBreakBroken = intakeBeamBreak.get();
   }
+
 
   @Override
   public void setVoltage(double volts) {

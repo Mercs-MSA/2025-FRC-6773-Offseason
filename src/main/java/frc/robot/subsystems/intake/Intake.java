@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class Intake extends SubsystemBase {
   public enum IntakePivotGoal {
-    kFloorPickup(() -> Rotation2d.fromRotations(-0.1)),
-    kStationPickup(() -> Rotation2d.fromRotations(-0.25)),
-    kStow(() -> Rotation2d.fromDegrees(0.015)),
+    kFloorPickup(() -> Rotation2d.fromRotations(0.005)),
+    kStow(() -> Rotation2d.fromRotations(-0.24)),
+    kTransfer(() -> Rotation2d.fromRotations(-0.25)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(
       new LoggedTunableNumber("Intake/Feedback/PivotSetpointDegrees", 0.0).get()));
@@ -197,6 +197,12 @@ public class Intake extends SubsystemBase {
   public void runRollers() {
     kRollerHardware.setVoltage(IntakeConstants.kRollerIntakingVoltage);
   }
+
+  public void stow() {
+    kRollerHardware.setVoltage(IntakeConstants.kRollerStowVoltage);
+  }
+
+
 
   public void setRollerVoltage(double volts) {
     kRollerHardware.setVoltage(volts);
