@@ -1,7 +1,6 @@
 package frc.robot.utils.debugging;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.signals.System_StateValue;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -11,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.Elevator.Elevator;
 
 // import static frc.robot.subsystems.drive.DriveConstants.kDrivebaseRadiusMeters;
 // import static frc.robot.subsystems.drive.DriveConstants.kRadiusMeters;
@@ -63,33 +61,6 @@ public class SysIDCharacterization {
                 (state) -> sysIDCTREStateLogger("SysID/Drive", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> voltageSetter.accept(voltage.magnitude()), null, subsystem));
-
-        return new SequentialCommandGroup(
-            startCTRELoggingRoutine(),
-            Commands.waitSeconds(3.0),
-            sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-            Commands.waitSeconds(3.0),
-            sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-            Commands.waitSeconds(3.0),
-            sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
-            Commands.waitSeconds(3.0),
-            sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
-            Commands.waitSeconds(3.0),
-            stopCTRELoggingRoutine()
-        );
-    }
-
-    public static Command runElevatorSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem)
-    {
-        SysIdRoutine sysIdRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                Units.Volts.of(1).per(Units.Second), 
-                Units.Volts.of(1), 
-                Units.Seconds.of(5),
-                (state) -> sysIDCTREStateLogger("SysID/Elevator", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> voltageSetter.accept(voltage.magnitude()), null, subsystem)
-        );
 
         return new SequentialCommandGroup(
             startCTRELoggingRoutine(),

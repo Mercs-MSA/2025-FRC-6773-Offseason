@@ -3,19 +3,30 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
+import static frc.robot.subsystems.drive.DriveConstants.kBackLeftHardware;
+import static frc.robot.subsystems.drive.DriveConstants.kBackRightHardware;
+import static frc.robot.subsystems.drive.DriveConstants.kFrontLeftHardware;
+import static frc.robot.subsystems.drive.DriveConstants.kFrontRightHardware;
+import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
+
+import frc.robot.subsystems.drive.controllers.*;
+
+
+import java.util.ArrayList;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
+
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.drive.Drive;
 // import frc.robot.subsystems.drive.GyroIO;
@@ -27,7 +38,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.drive.Drive.DriveState;
 // import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 // import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
-
+import frc.robot.subsystems.Elevator.Elevator;
+import frc.robot.subsystems.Elevator.Elevator.ElevatorGoal;
+import frc.robot.subsystems.Elevator.ElevatorConstants;
+import frc.robot.subsystems.Elevator.ElevatorIOSim;
+import frc.robot.subsystems.Elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.Module;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOKraken;
+import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakePivotIO;
@@ -36,39 +58,27 @@ import frc.robot.subsystems.intake.IntakePivotIOTalonFX;
 import frc.robot.subsystems.intake.IntakeRollerIO;
 import frc.robot.subsystems.intake.IntakeRollerIOSim;
 import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
-import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
-import frc.robot.TeleopCommands;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.function.Consumer;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.Elevator.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorConstants;
-import frc.robot.subsystems.Elevator.ElevatorIO;
-import frc.robot.subsystems.Elevator.ElevatorIOSim;
-import frc.robot.Constants;
-import frc.robot.subsystems.Elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorConstants;
 import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
-import frc.robot.subsystems.Elevator.Elevator.ElevatorGoal;
-import frc.robot.utils.debugging.SysIDCharacterization;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
+import frc.robot.subsystems.vision.CameraIO;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 
 public class RobotContainer {
     // Define subsystems
-    private final Intake m_intake;    
     // Define other utility classes
     
     private LoggedDashboardChooser<Command> autoChooser;
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
+
     private final Elevator m_Elevator;
     private final Manipulator m_Manipulator;
+    private final Drive robotDrive;
+    private final Vision vision;
+    private final Intake m_intake;    
+
 
 
     /* TODO: Set to true before competition
@@ -85,12 +95,25 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
             case REAL:
-            //    robotDrive = new Drive( new Module[] {
-            //         new Module("FL", new ModuleIOKraken(kFrontLeftHardware )),
-            //         new Module("FR", new ModuleIOKraken(kFrontRightHardware)),
-            //         new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
-            //         new Module("BR", new ModuleIOKraken(kBackRightHardware ))
-            //     }, new GyroIOPigeon2());
+                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
+
+                    robotDrive = new Drive(
+                    new Module[] {
+                        new Module("FL", new ModuleIOKraken(kFrontLeftHardware)),
+                        new Module("FR", new ModuleIOKraken(kFrontRightHardware)),
+                        new Module("BL", new ModuleIOKraken(kBackLeftHardware)),
+                        new Module("BR", new ModuleIOKraken(kBackRightHardware))
+                    },
+                    new GyroIOPigeon2(),
+                    null, m_Elevator); //TODO: why?
+
+                vision = new Vision(new CameraIO[] {
+                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+                    new VisionIOLimelight(camera1Name, () -> robotDrive.getRobotRotation()),
+                    new VisionIOLimelight(camera2Name, () -> robotDrive.getRobotRotation())
+                });
+
+                robotDrive.setVision(vision);
 
                 m_intake = new Intake(
                     new IntakePivotIOTalonFX(
@@ -102,17 +125,9 @@ public class RobotContainer {
                         IntakeConstants.kRollerMotorHardware,
                         IntakeConstants.kRollerMotorConfiguration,
                         IntakeConstants.kStatusSignalUpdateFrequencyHz));
-                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));  
                 break;
             case SIM:
-            //    robotDrive = new Drive( new Module[] {
-            //         new Module("FL", new ModuleIOSim()),
-            //         new Module("FR", new ModuleIOSim()),
-            //         new Module("BL", new ModuleIOSim()),
-            //         new Module("BR", new ModuleIOSim())
-            //     }, new GyroIO() {});
-
                 m_intake = new Intake(
                     new IntakePivotIOSim(
                         0.02,
@@ -125,6 +140,18 @@ public class RobotContainer {
                         IntakeConstants.kIntakeRollerSimulationConfiguration));
                 m_Elevator = new Elevator(new ElevatorIOSim(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kSimulationConfiguration, ElevatorConstants.kElevatorGains, 0.0, 10.0, 1.0));
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
+                robotDrive = new Drive( new Module[] {
+                    new Module("FL", new ModuleIOSim()),
+                    new Module("FR", new ModuleIOSim()),
+                    new Module("BL", new ModuleIOSim()),
+                    new Module("BR", new ModuleIOSim())
+                }, new GyroIO() {}, null, m_Elevator);
+
+                vision = new Vision(new CameraIO[] {
+                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+    
+                robotDrive.setVision(vision);
                 break;
             default:
             //    robotDrive = new Drive( new Module[] {
@@ -137,27 +164,39 @@ public class RobotContainer {
                 m_intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
                 m_Elevator = new Elevator(new ElevatorIOSim(null, null, null, 0, 0, 0));
                 m_Manipulator = new Manipulator(null);
+                robotDrive = new Drive( new Module[] {
+                    new Module("FL", new ModuleIO() {}),
+                    new Module("FR", new ModuleIO() {}),
+                    new Module("BL", new ModuleIO() {}),
+                    new Module("BR", new ModuleIO() {})
+                }, new GyroIO() {}, null, null);
+
+                vision = new Vision(new CameraIO[] {
+                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+    
+                robotDrive.setVision(vision);
                 break;
         }
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
         teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator);
 
-        // robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
+        robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(Drive.DriveState.TELEOP), robotDrive));
 
         // Pass subsystems to classes that need them for configuration
-        // robotDrive.acceptJoystickInputs(
-        //     () -> - driverController.getLeftY(),
-        //     () -> - driverController.getLeftX(),
-        //     () -> - driverController.getRightX(),
-        //     () -> driverController.getHID().getPOV());
+        robotDrive.acceptJoystickInputs(
+            () -> - driverController.getLeftY(),
+            () -> - driverController.getLeftX(),
+            () -> - driverController.getRightX(),
+            () -> driverController.getHID().getPOV());
 
 
         // Create any Dashboard choosers (LoggedDashboardChooser, etc)
 
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
-        configureButtonBindings();
-            
+        configureStateTriggers();
+        configureButtonBindings(); 
     }
 
     /* Commands to schedule on telop start-up */
@@ -215,7 +254,7 @@ public class RobotContainer {
             driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
             // driverController.leftBumper().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
-            // // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
+            driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // driverController.leftTrigger()
             //     .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
@@ -230,7 +269,6 @@ public class RobotContainer {
 
 
         else {
-            driverController.x().onTrue(SysIDCharacterization.runElevatorSysIDTests((voltage) -> m_Elevator.setVoltage(voltage), m_Elevator));
             // driverController.x()
             //     .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
             //         robotDrive.runMOICharacterization(20), robotDrive)))
