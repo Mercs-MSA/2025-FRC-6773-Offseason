@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utils.debugging.LoggedTunableNumber;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
@@ -107,21 +106,7 @@ public class RobotContainer {
         TeleopState(IntakePivotGoal pivotGoal) {
             this.pivotGoal = pivotGoal;
         }
-    }
-
-    public enum Meal {
-        BREAKFAST(1),
-        LUNCH(2), 
-        DINNER(3);
-
-        public final int size;
-
-        Meal(int size) {
-            this.size = size;
-        }
-    }
-
-    
+    }  
 
     public TeleopState currTeleopState = TeleopState.BASE;
 
