@@ -15,7 +15,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -26,8 +25,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,12 +37,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.drive.controllers.HeadingController;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.CHOOSER_STRATEGY;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.VisionObservation;
 import frc.robot.subsystems.drive.controllers.ManualTeleopController;
 import frc.robot.subsystems.drive.controllers.HolonomicController;
 
@@ -65,14 +59,19 @@ import org.littletonrobotics.junction.Logger;
  * This code is a swerve drivebase 
  * Main logic is handled in periodic() function
  */
-public class Drive extends SubsystemBase{
+public class Drive extends SubsystemBase {
     public static enum DriveState {
         // TELEOP AND AUTON CONTROLS
         TELEOP,
         TELEOP_SNIPER,
         POV_SNIPER,
+        PROCESSOR_HEADING_ALIGN,
+        INTAKE_HEADING_ALIGN,
+        REEF_HEADING_ALIGN,
         DRIVE_TO_CORAL,
+        DRIVE_TO_ALGAE,
         DRIVE_TO_INTAKE,
+        DRIVE_TO_BARGE,
         AUTON, 
         STOP,
         UP,
@@ -90,9 +89,6 @@ public class Drive extends SubsystemBase{
     private Module[] modules;
     private GyroIO gyro;
     private GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
-    private Vision vision = null;
-    private Elevator elevator;
-
 
     /* LOCALIZATION(tracks position and orientation of robot) */
     private Rotation2d robotRotation;
@@ -137,10 +133,9 @@ public class Drive extends SubsystemBase{
     Debouncer autoAlignTimeout = new Debouncer(0.1, DebounceType.kRising);
     Debouncer autoAlignDelay = new Debouncer(0.1, DebounceType.kRising);
 
-    public Drive(Module[] modules, GyroIO gyro, Vision vision, Elevator elevator) {
+    public Drive(Module[] modules, GyroIO gyro) {
         this.modules = modules;
         this.gyro = gyro;
-        this.elevator = elevator;
 
         robotRotation = gyroInputs.yawPosition;
 
@@ -185,12 +180,6 @@ public class Drive extends SubsystemBase{
 
         headingController.setHeadingGoal(() -> goalRotation);
     }
-
-
-        /* allow Vision to be set later if needed (avoids immediate NPE) */
-    public void setVision(Vision vision) {
-            this.vision = vision;
-        }
 
     public Command customFollowPathCommand(PathPlannerPath path) {
         return new FollowPathCommand(
@@ -257,19 +246,6 @@ public class Drive extends SubsystemBase{
                     % 360.0);
         }
 
-        /* VISION */
-        vision.periodic(poseEstimator.getEstimatedPosition(), odometry.getPoseMeters());
-        VisionObservation[] observations = vision.getVisionObservations();
-        for(VisionObservation observation : observations) {
-            if(observation.hasObserved()) poseEstimator.addVisionMeasurement(
-                observation.pose(), observation.timeStamp(), observation.stdDevs());
-
-            Logger.recordOutput(observation.camName()+"/stdDevX", observation.stdDevs().get(0));
-            Logger.recordOutput(observation.camName()+"/stdDevY", observation.stdDevs().get(1));
-            Logger.recordOutput(observation.camName()+"/stdDevTheta", observation.stdDevs().get(2));
-            // Logger.recordOutput(observation.camName()+"/TransformFromOdometry", odometry.getPoseMeters().minus(observation.pose()));
-        }
-
 
         poseEstimator.update(robotRotation, getModulePositions());
         odometry.update(robotRotation, getModulePositions());
@@ -285,23 +261,61 @@ public class Drive extends SubsystemBase{
 
         ///////////////////// SETTING DESIRED SPEEDS FROM DRIVE STATE \\\\\\\\\\\\\\\\\\
         ChassisSpeeds teleopSpeeds = teleopController.computeChassiSpeeds(
-            getPoseEstimate().getRotation(), getRobotChassisSpeeds(), false, elevator);
+            getPoseEstimate().getRotation(), getRobotChassisSpeeds(), false);
         switch (driveState) {
             case TELEOP:
                 desiredSpeeds = teleopSpeeds;
                 break;
             case TELEOP_SNIPER:
                 desiredSpeeds = teleopController.computeChassiSpeeds(
-                    getPoseEstimate().getRotation(), getRobotChassisSpeeds(), true, elevator);
+                    getPoseEstimate().getRotation(), getRobotChassisSpeeds(), true);
                 break;
             case POV_SNIPER:
                 desiredSpeeds = teleopController.computeSniperPOVChassisSpeeds(getPoseEstimate().getRotation());
+                break;
+            case PROCESSOR_HEADING_ALIGN:
+                goalRotation = AllianceFlipUtil.apply(Rotation2d.fromDegrees(90.0));
+                desiredSpeeds = new ChassisSpeeds(
+                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
+                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
+                break;
+            case INTAKE_HEADING_ALIGN:
+                goalRotation = AllianceFlipUtil.apply(GoalPoseChooser.getIntakePose(getPoseEstimate()).getRotation());
+                desiredSpeeds = new ChassisSpeeds(
+                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
+                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
+                break;
+            case REEF_HEADING_ALIGN:
+                goalRotation = AllianceFlipUtil.apply(GoalPoseChooser.turnFromReefOrigin(getPoseEstimate()));
+                desiredSpeeds = new ChassisSpeeds(
+                    teleopSpeeds.vxMetersPerSecond, teleopSpeeds.vyMetersPerSecond,
+                    headingController.getSnapOutput( getPoseEstimate().getRotation() ));
                 break;
             case DRIVE_TO_CORAL:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
+                break;
+            case DRIVE_TO_BARGE:
+                ChassisSpeeds autoAlignSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());;
+                desiredSpeeds = new ChassisSpeeds(
+                    autoAlignSpeeds.vxMetersPerSecond,
+                    teleopSpeeds.vyMetersPerSecond,
+                    autoAlignSpeeds.omegaRadiansPerSecond
+                );
+                break;
+            case DRIVE_TO_ALGAE:
+                ChassisSpeeds algaeAlignSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
+                double forwardJoy = (goalPose.getX() > AllianceFlipUtil.apply(FieldConstants.kReefCenter.getX()))
+                ? -teleopSpeeds.vxMetersPerSecond: teleopSpeeds.vxMetersPerSecond;
+                if(AllianceFlipUtil.shouldFlip()) forwardJoy *= -1;
+                desiredSpeeds = new ChassisSpeeds(
+                    /* Flips speed to preserve field relative. Not best solution, but probably good enough? */
+                    forwardJoy,
+                    algaeAlignSpeeds.vyMetersPerSecond,
+                    algaeAlignSpeeds.omegaRadiansPerSecond
+                );
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;
@@ -359,11 +373,26 @@ public class Drive extends SubsystemBase{
     public void setDriveState(DriveState state) {
         driveState = state;
         switch(driveState) {
+            case PROCESSOR_HEADING_ALIGN:
+                headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);            
+                break;
+            case REEF_HEADING_ALIGN:
+                headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);
+                break;
             case DRIVE_TO_CORAL:
                 autoAlignController.reset(
                     getPoseEstimate(),
                     ChassisSpeeds.fromRobotRelativeSpeeds(
                         getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
+                goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
+                break;
+            case DRIVE_TO_ALGAE:
+                GoalPoseChooser.setSide(SIDE.ALGAE);
+                autoAlignController.reset(
+                    getPoseEstimate(),
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                        getRobotChassisSpeeds(), 
+                        getPoseEstimate().getRotation()));
                 goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
                 break;
             case DRIVE_TO_INTAKE:
@@ -373,48 +402,15 @@ public class Drive extends SubsystemBase{
                         getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
                 goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kIntake, getPoseEstimate());
                 break;
+            case DRIVE_TO_BARGE:
+                autoAlignController.reset(
+                    getPoseEstimate(), 
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                        getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
+                goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kNet, getPoseEstimate());
+                break;
             default:
         }
-        // System.out.println(goalPose);
-        // switch(driveState) {
-        //     case PROCESSOR_HEADING_ALIGN:
-        //         headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);            
-        //         break;
-        //     case REEF_HEADING_ALIGN:
-        //         headingController.reset(getPoseEstimate().getRotation(), gyroInputs.yawVelocityPS);
-        //         break;
-        //     case DRIVE_TO_CORAL:
-        //         autoAlignController.reset(
-        //             getPoseEstimate(),
-        //             ChassisSpeeds.fromRobotRelativeSpeeds(
-        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
-        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
-        //         break;
-        //     case DRIVE_TO_ALGAE:
-        //         GoalPoseChooser.setSide(SIDE.ALGAE);
-        //         autoAlignController.reset(
-        //             getPoseEstimate(),
-        //             ChassisSpeeds.fromRobotRelativeSpeeds(
-        //                 getRobotChassisSpeeds(), 
-        //                 getPoseEstimate().getRotation()));
-        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kReefHexagonal, getPoseEstimate());
-        //         break;
-        //     case DRIVE_TO_INTAKE:
-        //         autoAlignController.reset(
-        //             getPoseEstimate(), 
-        //             ChassisSpeeds.fromRobotRelativeSpeeds(
-        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
-        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kIntake, getPoseEstimate());
-        //         break;
-        //     case DRIVE_TO_BARGE:
-        //         autoAlignController.reset(
-        //             getPoseEstimate(), 
-        //             ChassisSpeeds.fromRobotRelativeSpeeds(
-        //                 getRobotChassisSpeeds(), getPoseEstimate().getRotation()));
-        //         goalPose = GoalPoseChooser.getGoalPose(CHOOSER_STRATEGY.kNet, getPoseEstimate());
-        //         break;
-        //     default:
-        // }
     }
 
     ////////////// CHASSIS SPEED TO MODULES \\\\\\\\\\\\\\\\
@@ -515,16 +511,6 @@ public class Drive extends SubsystemBase{
 
     public void setPose(Pose2d pose) {
         setPoses(pose, pose);
-    }
-
-    /** Adds a new timestamped vision measurement. */
-    public void addVisionMeasurement(
-        Pose2d visionRobotPoseMeters,
-        double timestampSeconds,
-        Matrix<N3, N1> visionMeasurementStdDevs) {
-        // System.out.println("Vision measurement added: " + visionRobotPoseMeters);
-        poseEstimator.addVisionMeasurement(
-        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
     public void setPoses(Pose2d estimatorPose, Pose2d odometryPose) {
@@ -678,12 +664,4 @@ public class Drive extends SubsystemBase{
     public boolean getDriveToPoseTolerance() {
         return autoAlignController.atGoal();
     }
-
-//    Delete THISISISISISIS
-    public void accept(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-    addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-  }
 }
