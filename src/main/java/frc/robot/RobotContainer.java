@@ -7,9 +7,7 @@ import static frc.robot.subsystems.drive.DriveConstants.kBackLeftHardware;
 import static frc.robot.subsystems.drive.DriveConstants.kBackRightHardware;
 import static frc.robot.subsystems.drive.DriveConstants.kFrontLeftHardware;
 import static frc.robot.subsystems.drive.DriveConstants.kFrontRightHardware;
-import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
+
 
 import frc.robot.subsystems.drive.controllers.*;
 
@@ -50,7 +48,6 @@ import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.utils.debugging.LoggedTunableNumber;
@@ -75,9 +72,7 @@ import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorConstants;
 import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
-import frc.robot.subsystems.vision.CameraIO;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+
 
 public class RobotContainer {
     // Define subsystems
@@ -90,7 +85,6 @@ public class RobotContainer {
     private final Elevator m_Elevator;
     private final Manipulator m_Manipulator;
     private final Drive robotDrive;
-    private final Vision vision;
     private final Intake m_intake;    
 
 
@@ -125,16 +119,11 @@ public class RobotContainer {
                         new Module("BL", new ModuleIOKraken(kBackLeftHardware)),
                         new Module("BR", new ModuleIOKraken(kBackRightHardware))
                     },
-                    new GyroIOPigeon2(),
-                    null, m_Elevator); //TODO: why?
+                    new GyroIOPigeon2()); //TODO: why?
 
-                vision = new Vision(new CameraIO[] {
-                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
-                    new VisionIOLimelight(camera1Name, () -> robotDrive.getRobotRotation()),
-                    new VisionIOLimelight(camera2Name, () -> robotDrive.getRobotRotation())
-                });
+                
 
-                robotDrive.setVision(vision);
+
 
                 m_intake = new Intake(
                     new IntakePivotIOTalonFX(
@@ -166,13 +155,10 @@ public class RobotContainer {
                     new Module("FR", new ModuleIOSim()),
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
-                }, new GyroIO() {}, null, m_Elevator);
+                }, new GyroIO() {});
 
-                vision = new Vision(new CameraIO[] {
-                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
-                });
+
     
-                robotDrive.setVision(vision);
                 break;
             default:
             //    robotDrive = new Drive( new Module[] {
@@ -190,13 +176,9 @@ public class RobotContainer {
                     new Module("FR", new ModuleIO() {}),
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
-                }, new GyroIO() {}, null, null);
+                }, new GyroIO() {});
 
-                vision = new Vision(new CameraIO[] {
-                    new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
-                });
-    
-                robotDrive.setVision(vision);
+
                 break;
         }
         autonCommands = new AutonCommands(robotDrive);
