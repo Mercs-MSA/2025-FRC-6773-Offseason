@@ -50,6 +50,20 @@ import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.Drive.DriveState;
+import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
+import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
+import frc.robot.utils.debugging.LoggedTunableNumber;
+
+import static frc.robot.subsystems.drive.DriveConstants.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import choreo.auto.AutoFactory;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakePivotIO;
@@ -88,11 +102,18 @@ public class RobotContainer {
 
     // Anshul said to use this because he loves event loops
     private final EventLoop teleopLoop = new EventLoop();
+    private final AutonCommands autonCommands;
+
+    private LoggedTunableNumber startPos = new LoggedTunableNumber("Auton/StartPos (0 = U, 1 = M, 2 = B)", 1);
+    private LoggedTunableNumber startReefPos = new LoggedTunableNumber("Auton/StartReefPos (0 = Reef RUp, 1 = Reef R, 2 = Reef D)", 1);
+    private LoggedTunableNumber sourcePref = new LoggedTunableNumber("Auton/SourcePref (0 = Source T, 1 = Source B)", 1);
+    
 
     private final TeleopCommands teleopCommands;
 
 
     public RobotContainer() {
+        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
                 m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
@@ -178,6 +199,7 @@ public class RobotContainer {
                 robotDrive.setVision(vision);
                 break;
         }
+        autonCommands = new AutonCommands(robotDrive);
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
         teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator);
@@ -209,8 +231,81 @@ public class RobotContainer {
 
 
     public Command getAutonomousCommand() {
+        String startCommandName = "";
 
-        return autoChooser.get();
+        SequentialCommandGroup autoCommand = new SequentialCommandGroup();
+
+
+        switch ((int)startPos.get()) {
+            case 0: // U
+                startCommandName += "STT_";
+                break;
+            case 1: // M
+                startCommandName += "STM_";
+                break;
+            case 2: // B
+                startCommandName += "STB_";
+                break;
+            default:
+                startCommandName += "STM_";
+                break;
+        }
+
+        switch ((int)startReefPos.get()) {
+            case 0: // Reef RUp
+                startCommandName += "TRREEF";
+                break;
+            case 1: // Reef R
+                startCommandName += "RREEF";
+                break;
+            case 2: // Reef D
+                startCommandName += "BRREEF";
+                break;
+            default:
+                startCommandName += "RREEF";
+                break;
+        }
+
+        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+
+        startCommandName = startCommandName.split("_")[1];
+
+        switch ((int)sourcePref.get()) {
+            case 0: // Source T
+                startCommandName += "_ST";
+                break;
+            case 1: // Source B
+                startCommandName += "_SB";
+                break;
+            default:
+                startCommandName += "_ST";
+                break;
+        }
+
+        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+
+        startCommandName = startCommandName.split("_")[1];
+
+        switch ((int)sourcePref.get()) {
+            case 0: // Source T
+                startCommandName += "_TLREEF";
+                break;
+            case 1: // Source B
+                startCommandName += "_BLREEF";
+                break;
+            default:
+                startCommandName += "_TRREEF";
+                break;
+        }
+
+        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+
+        for (int i = 0 ; i < 10; i++) {
+            startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
+            autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        }
+
+        return autoCommand;
     }
 
     public void getAutonomousExit() {
