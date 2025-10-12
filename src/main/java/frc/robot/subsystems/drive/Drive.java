@@ -186,12 +186,13 @@ public class Drive extends SubsystemBase{
         headingController.setHeadingGoal(() -> goalRotation);
     }
 
+
         /* allow Vision to be set later if needed (avoids immediate NPE) */
     public void setVision(Vision vision) {
             this.vision = vision;
         }
 
-    public Command customFollowPathComamnd(PathPlannerPath path) {
+    public Command customFollowPathCommand(PathPlannerPath path) {
         return new FollowPathCommand(
             path,
             this::getPoseEstimate,
@@ -207,7 +208,7 @@ public class Drive extends SubsystemBase{
             this);
     }
 
-    public Command customFollowPathComamnd(PathPlannerPath path, PPHolonomicDriveController drivePID) {
+    public Command customFollowPathCommand(PathPlannerPath path, PPHolonomicDriveController drivePID) {
         return new FollowPathCommand(
             path,
             this::getPoseEstimate,
