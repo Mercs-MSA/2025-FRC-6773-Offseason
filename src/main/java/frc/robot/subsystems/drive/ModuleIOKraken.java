@@ -80,7 +80,7 @@ public class ModuleIOKraken implements ModuleIO {
 
         driveConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         driveConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfig.Feedback.SensorToMechanismRatio = kDriveMotorGearing / kWheelCircumferenceMeters;
@@ -121,7 +121,7 @@ public class ModuleIOKraken implements ModuleIO {
 
         turnConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         turnConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnConfig.MotorOutput.Inverted = kTurnMotorInvert ? 
             InvertedValue.Clockwise_Positive : 
             InvertedValue.CounterClockwise_Positive;
