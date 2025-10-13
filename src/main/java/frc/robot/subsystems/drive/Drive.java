@@ -285,14 +285,14 @@ public class Drive extends SubsystemBase{
 
         ///////////////////// SETTING DESIRED SPEEDS FROM DRIVE STATE \\\\\\\\\\\\\\\\\\
         ChassisSpeeds teleopSpeeds = teleopController.computeChassiSpeeds(
-            getPoseEstimate().getRotation(), getRobotChassisSpeeds(), false, elevator);
+            getPoseEstimate().getRotation(), getRobotChassisSpeeds(), false);
         switch (driveState) {
             case TELEOP:
                 desiredSpeeds = teleopSpeeds;
                 break;
             case TELEOP_SNIPER:
                 desiredSpeeds = teleopController.computeChassiSpeeds(
-                    getPoseEstimate().getRotation(), getRobotChassisSpeeds(), true, elevator);
+                    getPoseEstimate().getRotation(), getRobotChassisSpeeds(), true);
                 break;
             case POV_SNIPER:
                 desiredSpeeds = teleopController.computeSniperPOVChassisSpeeds(getPoseEstimate().getRotation());
