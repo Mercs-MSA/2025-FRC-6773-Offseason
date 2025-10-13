@@ -32,6 +32,7 @@ import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakePivotIO;
 import frc.robot.subsystems.intake.IntakePivotIOSim;
@@ -42,6 +43,10 @@ import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorConstants;
 import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
+import frc.robot.subsystems.vision.CameraIO;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
@@ -60,6 +65,7 @@ public class RobotContainer {
     private final Intake m_intake;  
     private final Elevator m_Elevator;
     private final Manipulator m_Manipulator;  
+    private final Vision m_vision;
 
     
     // Define other utility classes
@@ -88,13 +94,22 @@ public class RobotContainer {
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
-               robotDrive = new Drive( new Module[] {
+
+                
+                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
+
+                robotDrive = new Drive( new Module[] {
                     new Module("FL", new ModuleIOKraken(kFrontLeftHardware )),
                     new Module("FR", new ModuleIOKraken(kFrontRightHardware)),
                     new Module("BL", new ModuleIOKraken(kBackLeftHardware  )),
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
-                }, new GyroIOPigeon2());
+                }, new GyroIOPigeon2(), null, m_Elevator);
 
+                m_vision = new Vision(new CameraIO[]{
+                    new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+
+                robotDrive.setVision(m_vision);
                 m_intake = new Intake(
                     new IntakePivotIOTalonFX(
                         IntakeConstants.kPivotMotorHardware,
@@ -105,17 +120,23 @@ public class RobotContainer {
                         IntakeConstants.kRollerMotorHardware,
                         IntakeConstants.kRollerMotorConfiguration,
                         IntakeConstants.kStatusSignalUpdateFrequencyHz));
-                m_Elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kMotorConfiguration, ElevatorConstants.kElevatorGains)); 
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));  
                 break;
             case SIM:
+                m_Elevator = new Elevator(new ElevatorIOSim(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kSimulationConfiguration, ElevatorConstants.kElevatorGains, 0.0, 10.0, 1.0));
+
                robotDrive = new Drive( new Module[] {
                     new Module("FL", new ModuleIOSim()),
                     new Module("FR", new ModuleIOSim()),
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
-                }, new GyroIO() {});
-                m_Elevator = new Elevator(new ElevatorIOSim(ElevatorConstants.kRoboElevatorHardware, ElevatorConstants.kSimulationConfiguration, ElevatorConstants.kElevatorGains, 0.0, 10.0, 1.0));
+                }, new GyroIO() {}, null, m_Elevator);
+
+                m_vision = new Vision(new CameraIO[]{
+                    new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+                robotDrive.setVision(m_vision);
+
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
                 m_intake = new Intake(
                     new IntakePivotIOSim(
@@ -129,14 +150,20 @@ public class RobotContainer {
                         IntakeConstants.kIntakeRollerSimulationConfiguration));
                 break;
             default:
-               robotDrive = new Drive( new Module[] {
+                m_Elevator = new Elevator(new ElevatorIOSim(null, null, null, 0, 0, 0));
+
+                robotDrive = new Drive( new Module[] {
                     new Module("FL", new ModuleIO() {}),
                     new Module("FR", new ModuleIO() {}),
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
-                }, new GyroIO() {});
+                }, new GyroIO() {}, null, m_Elevator);
+
+                m_vision = new Vision(new CameraIO[]{
+                    new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
+                });
+
                 m_intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
-                m_Elevator = new Elevator(new ElevatorIOSim(null, null, null, 0, 0, 0));
                 m_Manipulator = new Manipulator(null);
                 break;
         }
@@ -286,16 +313,22 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
+
+            driverController.leftBumper()
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
             driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
             driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)));
             driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
-            // driverController.leftBumper().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
+            // // driverController.leftBumper().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
             driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             // driverController.leftTrigger()
             //     .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
             //     .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
+
+
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
@@ -351,10 +384,12 @@ public class RobotContainer {
         else {
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
-            driverController.x()
-                .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
-                    robotDrive.runMOICharacterization(20), robotDrive)))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            // driverController.x()
+            //     .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
+            //         robotDrive.runMOICharacterization(20), robotDrive)))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+
 
             // driverController.x()
             //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.TELEOP_SNIPER))
@@ -362,17 +397,16 @@ public class RobotContainer {
 
             // getPOV == -1 if nothing is pressed, so if it doesn't return that
             // then pov control is being used as its being pressed
-            new Trigger(()-> driverController.getHID().getPOV() != -1)
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            // new Trigger(()-> driverController.getHID().getPOV() != -1)
+            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
+            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
             driverController.b()
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.a()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            
+            
         }
     }
 

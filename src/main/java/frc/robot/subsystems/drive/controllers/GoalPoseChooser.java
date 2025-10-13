@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive.controllers;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -50,6 +51,8 @@ public class GoalPoseChooser {
     /* Splits the field into hexagon regions of the reef 
      * We got the left or right side of the side we are closest
      */
+
+    
     public static Pose2d getReefHexagonalPose(Pose2d robotPose) {
         Rotation2d angleFromReefCenter = turnFromReefOriginForHexagon(robotPose);
         Pose2d goal;
@@ -137,8 +140,9 @@ public class GoalPoseChooser {
             else goal = FieldConstants.AM;
         }
         // Logger.recordOutput("Drive/SelectedSide", side);
-
+        Logger.recordOutput("Drive/GoalPoseRaw", goal);
         return AllianceFlipUtil.apply(goal);
+
     }
 
     public static void updateSideStuff() {

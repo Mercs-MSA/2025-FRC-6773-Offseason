@@ -1,14 +1,18 @@
 package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.utils.debugging.LoggedTunableNumber;
 
 public class FieldConstants {
     public static final Pose2d kReefCenter = new Pose2d(4.48249, Constants.kFieldWidthMeters / 2.0, Rotation2d.fromDegrees(0.0));
     public static final double kXNetLineMeters = 7.15;
+    public static LoggedTunableNumber testPoseX = new LoggedTunableNumber("Field/TestPoseX", 3.0);
+    public static LoggedTunableNumber testPoseY = new LoggedTunableNumber("Field/TestPoseY", 3.0);
+    public static LoggedTunableNumber testPoseRotation = new LoggedTunableNumber("Field/TestPoseRotation", Rotation2d.k180deg.getDegrees());
 
-    public static final Pose2d AL = new Pose2d(3.23, 4.44, Rotation2d.k180deg);
-    public static final Pose2d AR = new Pose2d(3.22, 4.14, Rotation2d.k180deg);
-    public static final Pose2d AM = new Pose2d(average(AL.getX(), AR.getX()), average(AL.getY(), AR.getY()), Rotation2d.k180deg);
+    public static final Pose2d AL = new Pose2d(3.1, 4.2, Rotation2d.kZero);
+    public static final Pose2d AR = new Pose2d(3.1, 3.87, Rotation2d.kZero);
+    public static final Pose2d AM = new Pose2d(average(AL.getX(), AR.getX()), average(AL.getY(), AR.getY()), Rotation2d.kZero);
 
     public static final Pose2d BL = new Pose2d(4.22, 5.32, Rotation2d.fromDegrees(120.0));
     public static final Pose2d BR = new Pose2d(3.94, 5.17, Rotation2d.fromDegrees(120.0));

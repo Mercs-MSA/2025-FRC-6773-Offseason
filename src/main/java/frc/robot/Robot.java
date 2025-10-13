@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.math.AllianceFlipUtil;
@@ -93,7 +95,6 @@ public class Robot extends LoggedRobot {
         // Some visualizers need to interop and share data between one another
         // periodically, thus this method must be called periodically
         //mRobotContainer.getTeleopEventLoop().poll();
-
         Logger.recordOutput("GoalPose/B/AL", FieldConstants.AL);
         Logger.recordOutput("GoalPose/B/AR", FieldConstants.AR);
         Logger.recordOutput("GoalPose/B/BL", FieldConstants.BL);
@@ -128,6 +129,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
+        Logger.recordOutput("Field/TestPose", new Pose2d(FieldConstants.testPoseX.getAsDouble(), FieldConstants.testPoseY.getAsDouble(), Rotation2d.fromDegrees(FieldConstants.testPoseRotation.getAsDouble())));
     }
 
     @Override
