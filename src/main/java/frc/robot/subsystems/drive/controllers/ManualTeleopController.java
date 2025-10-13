@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive.controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.subsystems.Elevator.Elevator;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
@@ -13,7 +12,6 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
 
 /* Controls the pose of the robot using 3 PID controllers and Feedforward */
 public class ManualTeleopController {
@@ -37,17 +35,10 @@ public class ManualTeleopController {
     private DoubleSupplier xSupplier;
     private DoubleSupplier ySupplier;
     private DoubleSupplier omegaSupplier;
-    private double elevatorHeight;
-
-
 
     private DoubleSupplier povSupplierDegrees;
 
     public ManualTeleopController() {}
-
-
-   
-
 
     public void acceptJoystickInputs(
         DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier, DoubleSupplier povSupplierDegrees) {
@@ -58,7 +49,7 @@ public class ManualTeleopController {
         this.povSupplierDegrees = povSupplierDegrees;
     }
 
-    public ChassisSpeeds computeChassiSpeeds(Rotation2d robotAngle, ChassisSpeeds currentRobotRelativeSpeeds, boolean joystickSniper, Elevator elevator) {
+    public ChassisSpeeds computeChassiSpeeds(Rotation2d robotAngle, ChassisSpeeds currentRobotRelativeSpeeds, boolean joystickSniper) {
         double xAdjustedJoystickInput = MathUtil.applyDeadband(xSupplier.getAsDouble(), linearDeadBand.get());
         double yAdjustedJoystickInput = MathUtil.applyDeadband(ySupplier.getAsDouble(), linearDeadBand.get());
         double omegaAdjustedJoystickInput = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), rotationDeadband.get());
@@ -106,11 +97,9 @@ public class ManualTeleopController {
         // Logger.recordOutput("Drive/Teleop/offsetAngle", robotAngle);
 
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds( 
-            (DriveConstants.kMaxLinearSpeedMPS * xScaledJoystickInput) * getElevatorSpeedScalar(elevator),
-            (DriveConstants.kMaxLinearSpeedMPS * yScaledJoystickInput) * getElevatorSpeedScalar(elevator),
+            DriveConstants.kMaxLinearSpeedMPS * xScaledJoystickInput, 
+            DriveConstants.kMaxLinearSpeedMPS * yScaledJoystickInput, 
             DriveConstants.kMaxRotationSpeedRadiansPS * omegaJoystickInput);
-
-            // System.out.println(getElevatorSpeedScalar());
 
         if (fieldRelative) {
             desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -118,26 +107,6 @@ public class ManualTeleopController {
         }
 
         return desiredSpeeds;
-    }
-
-
-    private double getElevatorSpeedScalar(Elevator elevator) {
-        elevatorHeight = elevator.getPositionMeters();
-
-    
-          
-        double maxHeight = 1.4; 
-        
-        double clampedHeight = MathUtil.clamp(elevatorHeight, 0.0, maxHeight);
-        
-        if (clampedHeight < 0.1) {
-            return 1.0; // No reduction at very low heights
-        } else if (clampedHeight > maxHeight - 0.1) {
-            return 0.2; // Maximum reduction at maximum height
-        } else {
-            // Linear interpolation between 1.0 and 0.5 based on height
-            return 1.0 - (0.5 * (clampedHeight / maxHeight));
-        }
     }
 
     /* Wheter to use the snipler scalar or not based on the cnodition */
@@ -188,5 +157,3 @@ public class ManualTeleopController {
         return MathUtil.clamp(val, 0.0, 1.0);
     }
 }
-
-
