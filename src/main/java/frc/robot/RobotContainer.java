@@ -51,7 +51,6 @@ import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.utils.debugging.LoggedTunableNumber;
