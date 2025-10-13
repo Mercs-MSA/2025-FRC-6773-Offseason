@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.drive.Drive;
@@ -50,7 +51,6 @@ import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.utils.debugging.LoggedTunableNumber;
@@ -72,6 +72,7 @@ import frc.robot.subsystems.intake.IntakePivotIOTalonFX;
 import frc.robot.subsystems.intake.IntakeRollerIO;
 import frc.robot.subsystems.intake.IntakeRollerIOSim;
 import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
+import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorConstants;
 import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
@@ -266,7 +267,10 @@ public class RobotContainer {
                 break;
         }
 
+
         autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        autoCommand.addCommands(autonCommands.alignToReef());
+        autoCommand.addCommands(runElevatorAutoCommand(ElevatorGoal.kL4Coral));
 
         startCommandName = startCommandName.split("_")[1];
 
@@ -281,9 +285,9 @@ public class RobotContainer {
                 startCommandName += "_ST";
                 break;
         }
-
+    
         autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
+        autoCommand.addCommands(runIntakeAutoCommand());
         startCommandName = startCommandName.split("_")[1];
 
         switch ((int)sourcePref.get()) {
@@ -299,10 +303,20 @@ public class RobotContainer {
         }
 
         autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
+        autoCommand.addCommands(autonCommands.alignToReef());
+        autoCommand.addCommands(runElevatorAutoCommand(ElevatorGoal.kL4Coral));
+ 
         for (int i = 0 ; i < 10; i++) {
             startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
             autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+            if (i % 2 == 1) {
+                autoCommand.addCommands(autonCommands.alignToReef());
+                autoCommand.addCommands(runElevatorAutoCommand(ElevatorGoal.kL4Coral));
+            }
+            else
+            {
+                autoCommand.addCommands(runIntakeAutoCommand());
+            }
         }
 
         return autoCommand;
@@ -394,5 +408,19 @@ public class RobotContainer {
 
     public EventLoop getTeleopEventLoop() {
         return teleopLoop;
+    }
+
+    public Command runElevatorAutoCommand(ElevatorGoal level) {
+        return Commands.run(() -> {m_Elevator.setGoal(level);}, m_Elevator)
+        .andThen(new WaitUntilCommand(() -> m_Elevator.atGoal()).withTimeout(5.0))
+        .andThen(Commands.run(() -> {m_Manipulator.outtake();}, m_Manipulator))
+        .andThen(new WaitUntilCommand(() -> !m_Manipulator.getCoralDetected()).withTimeout(2.0));
+    }
+
+    public Command runIntakeAutoCommand() {
+        // return Commands.run(() -> {m_intake.setPivotGoal(IntakePivotGoal.kFloorPickup);}, m_intake)
+        return Commands.run(() -> {m_intake.runRollers();}, m_intake)
+        .andThen(new WaitUntilCommand(() -> m_intake.getBeamBreak()).withTimeout(3.0))
+        .andThen(new WaitUntilCommand(() -> !m_intake.getBeamBreak()).withTimeout(3.0));
     }
 }

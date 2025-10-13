@@ -111,4 +111,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
   public void setBrakeMode(boolean enableBrake) {
     kMotor.setNeutralMode(enableBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
+
+  public boolean getBeamBreak() {
+    return intakeBeamBreak.get();
+  }
 }

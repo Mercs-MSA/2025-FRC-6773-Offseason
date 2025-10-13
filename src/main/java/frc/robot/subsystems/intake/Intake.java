@@ -202,7 +202,9 @@ public class Intake extends SubsystemBase {
     kRollerHardware.setVoltage(IntakeConstants.kRollerStowVoltage);
   }
 
-
+  public boolean getBeamBreak() {
+    return kRollerHardware.getBeamBreak();
+  }
 
   public void setRollerVoltage(double volts) {
     kRollerHardware.setVoltage(volts);

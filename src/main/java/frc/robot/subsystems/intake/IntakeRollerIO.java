@@ -63,5 +63,5 @@ public interface IntakeRollerIO {
    * @param enableBrake
    */
   public default void setBrakeMode(boolean enableBrake) {}
-
+  public default boolean getBeamBreak() {return false;};
 }
