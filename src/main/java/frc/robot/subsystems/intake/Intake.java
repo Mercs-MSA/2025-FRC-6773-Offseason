@@ -199,6 +199,10 @@ public class Intake extends SubsystemBase {
     kRollerHardware.setVoltage(IntakeConstants.kRollerIntakingVoltage);
   }
 
+  public void stopRollers() {
+    kRollerHardware.stop();
+  }
+
   public void stow() {
     kRollerHardware.setVoltage(IntakeConstants.kRollerStowVoltage);
   }

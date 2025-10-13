@@ -84,6 +84,6 @@ public class Manipulator extends SubsystemBase {
   
 
   public boolean getCoralDetected() {
-    return kInputs.beambreakBroken;
+    return kInputs.beambreakBroken; 
   }
 }

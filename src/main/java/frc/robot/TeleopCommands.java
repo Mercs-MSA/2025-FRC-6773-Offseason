@@ -81,6 +81,8 @@ public class TeleopCommands {
      * @return The command to start the algae picker pivot and stop the entire intake
      */
     public Command runPivotAndStopIntakeCommand(IntakePivotGoal pivotGoal) {
+        // Trigger coralTrigger = new Trigger(() -> kManipulator.getCoralDetected());
+
         return Commands.startEnd(
             ()-> {
                 stopPivot = false;
@@ -118,11 +120,18 @@ public class TeleopCommands {
 
     public Command stowCommand() {
         // return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);
-        return !kManipulator.getCoralDetected() ? 
-            runPivotAndHoldCommand(IntakePivotGoal.kStow) :
-            runPivotAndHoldCommand(IntakePivotGoal.kTransfer);
+        return Commands.parallel(runPivotAndHoldCommand(IntakePivotGoal.kStow), runRollerCommand());
+            
+            
         
     }
+
+    // public Command checkManipulatorCommand() {
+    //     return Commands.waitUntil(() -> kManipulator.getCoralDetected())
+    //         .andThen(Commands.runOnce(() -> {
+    //             stopRollerCommand();
+    //         }));
+    // }
 
     public Command runManipulatorRollersCommand() {
         return Commands.runOnce(() -> {
@@ -143,9 +152,9 @@ public class TeleopCommands {
     }
 
     public Command runRollerCommand() {
-        return Commands.runOnce(() -> {
+        return Commands.run(() -> {
             stopRollers = false;
-            kIntake.runRollers();
+            if (!kManipulator.getCoralDetected()) { kIntake.runRollers(); } else { kIntake.stopRollers(); };
         });
     }
 
