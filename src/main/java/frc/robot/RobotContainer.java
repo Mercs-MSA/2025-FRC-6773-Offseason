@@ -51,6 +51,7 @@ import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.utils.debugging.LoggedTunableNumber;
@@ -126,7 +127,8 @@ public class RobotContainer {
                         new Module("BL", new ModuleIOKraken(kBackLeftHardware)),
                         new Module("BR", new ModuleIOKraken(kBackRightHardware))
                     },
-                    new GyroIOPigeon2()); //TODO: why?
+                    new GyroIOPigeon2(),
+                    null, m_Elevator); //TODO: why?
 
                 vision = new Vision(new CameraIO[] {
                     new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
@@ -134,8 +136,8 @@ public class RobotContainer {
                     new VisionIOLimelight(camera2Name, () -> robotDrive.getRobotRotation())
                 });
 
-                // robotDrive.setVision(vision);
-                // robotDrive.setV
+                robotDrive.setVision(vision);
+
                 m_intake = new Intake(
                     new IntakePivotIOTalonFX(
                         IntakeConstants.kPivotMotorHardware,
@@ -166,13 +168,13 @@ public class RobotContainer {
                     new Module("FR", new ModuleIOSim()),
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
-                }, new GyroIO() {});
+                }, new GyroIO() {}, null, m_Elevator);
 
                 vision = new Vision(new CameraIO[] {
                     new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
                 });
     
-                // robotDrive.setVision(vision);
+                robotDrive.setVision(vision);
                 break;
             default:
             //    robotDrive = new Drive( new Module[] {
@@ -190,13 +192,13 @@ public class RobotContainer {
                     new Module("FR", new ModuleIO() {}),
                     new Module("BL", new ModuleIO() {}),
                     new Module("BR", new ModuleIO() {})
-                }, new GyroIO() {});
+                }, new GyroIO() {}, null, null);
 
                 vision = new Vision(new CameraIO[] {
                     new VisionIOLimelight(camera0Name, () -> robotDrive.getRobotRotation()),
                 });
     
-                // robotDrive.setVision(vision);
+                robotDrive.setVision(vision);
                 break;
         }
         autonCommands = new AutonCommands(robotDrive);
