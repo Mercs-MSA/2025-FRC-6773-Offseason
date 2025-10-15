@@ -141,6 +141,7 @@ public class IntakeConstants {
     41, // CAN ID
     kPivotGearing); // Gear ratio
 
+  public static final int intakeBeambreakChannel = 0;
   public static final IntakePivotGains kPivotGains =  
     switch (Constants.kCurrentMode) {
       case REAL -> new IntakePivotGains(

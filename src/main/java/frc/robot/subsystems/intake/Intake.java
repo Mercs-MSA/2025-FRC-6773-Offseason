@@ -201,4 +201,8 @@ public class Intake extends SubsystemBase {
     kRollerHardware.setVoltage(volts);
   }
 
+  public boolean getIntakeBeambreak(){
+    return kRollerInputs.beambreakOutput;
+  }
+
 }

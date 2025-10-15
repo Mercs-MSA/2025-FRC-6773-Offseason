@@ -14,11 +14,13 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerHardware;
 import frc.robot.subsystems.intake.IntakeConstants.IntakeRollerTalonFXConfiguration;
 
 public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     private final TalonFX kMotor;
+    private final DigitalInput kbeambreak;
 
     private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
@@ -38,6 +40,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         double statusSignalUpdateFrequency
     ) {
         kMotor = new TalonFX(hardware.motorId(), canbus);
+        kbeambreak = new DigitalInput(IntakeConstants.intakeBeambreakChannel);
+
 
         motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
         motorConfiguration.CurrentLimits.SupplyCurrentLimit = configuration.supplyCurrentLimitAmps();
@@ -88,6 +92,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     inputs.supplyCurrentAmps = supplyAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorAmps.getValueAsDouble();
     inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
+    inputs.beambreakOutput = kbeambreak.get();
   }
 
   @Override
@@ -95,6 +100,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     kMotor.setControl(kVoltageControl.withOutput(volts));
   }
 
+  
   @Override
   public void stop() {
     kMotor.setControl(new NeutralOut());

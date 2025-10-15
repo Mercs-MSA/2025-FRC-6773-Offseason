@@ -19,6 +19,8 @@ public interface IntakeRollerIO {
     public double supplyCurrentAmps = 0.0;
     public double statorCurrentAmps = 0.0;
     public double temperatureCelsius = 0.0;
+
+    public boolean beambreakOutput = false; //TODO: invert as needed
   }
 
   /**
@@ -32,6 +34,7 @@ public interface IntakeRollerIO {
    * @param volts The voltage that should be applied to the motor from -12 to 12
    */
   public default void setVoltage(double volts) {}
+
 
 
   /** 
