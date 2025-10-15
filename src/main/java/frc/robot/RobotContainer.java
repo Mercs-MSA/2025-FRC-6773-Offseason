@@ -185,12 +185,12 @@ public class RobotContainer {
             // driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             driverController.a()
-                .onTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
-                .onFalse(teleopCommands.stopPivotCommand());
+                .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
+                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
             driverController.b()
-                .onTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStationPickup))
-                .onFalse(teleopCommands.stopPivotCommand());
+                .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStationPickup))
+                .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
 
             driverController.rightBumper()
                 .onTrue(teleopCommands.toggleRollerCommand());
