@@ -168,7 +168,7 @@ public class RobotContainer {
                 break;
         }
         autonCommands = new AutonCommands(robotDrive);
-        teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator);
+        teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -314,8 +314,8 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
-            driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            // driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            // driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
             driverController.a()
                 .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)))
                 .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
@@ -333,6 +333,9 @@ public class RobotContainer {
             driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
+                .whileFalse(teleopCommands.stowCommand());
+
+            driverController.leftBumper().onTrue(teleopCommands.runSubstationPickupCommand())
                 .whileFalse(teleopCommands.stowCommand());
 
         
@@ -370,4 +373,14 @@ public class RobotContainer {
     public EventLoop getTeleopEventLoop() {
         return teleopLoop;
     }
+
+    public void setIntakeBrakeMode(){
+        if(m_intake.getCoralDetected()){
+            m_intake.setBrakeMode(false);
+        } else if(!m_intake.getCoralDetected()){
+            m_intake.setBrakeMode(true);
+        }
+    }
+
+
 }

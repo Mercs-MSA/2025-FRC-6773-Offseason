@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.subsystems.climb.Climb;
 // import frc.robot.subsystems.climb.Climb.ClimbVoltageGoal;
@@ -43,6 +44,8 @@ public class TeleopCommands {
     private final Elevator kElevator;
     // private final Climb kClimb;
 
+    private CommandXboxController kController;
+
     /** 
      * Internal state to decide whether or not to stop the rollers when the intake's 
      * stop method is invoked. When creating a command that requires the rollers, this
@@ -65,11 +68,12 @@ public class TeleopCommands {
      * @param intake The intake subsystem intance
      * @param climb The climb subsystem instance
      */
-    public TeleopCommands(Intake intake, Elevator elevator, Manipulator manipulator) {
+    public TeleopCommands(Intake intake, Elevator elevator, Manipulator manipulator, CommandXboxController controller) {
         // kElevator = elevator;
         kIntake = intake;
         kElevator = elevator;
         kManipulator = manipulator;
+        kController = controller;
         // kClimb = climb;
     }
 
@@ -110,9 +114,30 @@ public class TeleopCommands {
             kIntake);
     }
 
+    public Command runPivotSubstationAndHoldCommand() {
+        return Commands.startEnd(
+            () -> {
+                stopPivot = false;
+                kIntake.substationIntakeCommand(kController);
+            }, 
+            () -> {
+                stopPivot = false;
+                kIntake.setPivotPosition(kIntake.getPivotPosition());
+            }, 
+            kIntake);
+    }
+
     public Command floorIntakeCommand() {
         return Commands.parallel(
             runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup),
+            runRollerCommand(),
+            runManipulatorRollersCommand()
+        );
+    }
+
+    public Command substationIntakeCommand() {
+        return Commands.parallel(
+            runPivotSubstationAndHoldCommand(),
             runRollerCommand(),
             runManipulatorRollersCommand()
         );
@@ -155,6 +180,13 @@ public class TeleopCommands {
         return Commands.run(() -> {
             stopRollers = false;
             if (!kManipulator.getCoralDetected()) { kIntake.runRollers(); } else { kIntake.stopRollers(); };
+        });
+    }
+
+    public Command runSubstationPickupCommand() {
+        return Commands.run(() -> {
+            //stopRollers = false;
+            if (!kIntake.getCoralDetected()) { kIntake.setPivotGoal(IntakePivotGoal.kSubstationPickup); } else if (kIntake.getCoralDetected() || kIntake.ifStowed()) {  kIntake.setPivotGoal(IntakePivotGoal.kStow); };
         });
     }
 

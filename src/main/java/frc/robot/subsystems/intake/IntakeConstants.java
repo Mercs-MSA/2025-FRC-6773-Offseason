@@ -20,7 +20,9 @@ public class IntakeConstants {
 
   public record IntakeRollerHardware(
     int motorId,
-    double gearing) {}
+    double gearing,
+    int intakeBeamBreakIO
+    ) {}
 
   public record IntakePivotGains(
     // Feedback control
@@ -95,7 +97,8 @@ public class IntakeConstants {
 
   public static final IntakeRollerHardware kRollerMotorHardware = new IntakeRollerHardware(
     43, // Motor CAN ID
-    2.0 /1.0 // Gearing
+    2.0 /1.0, // Gearing
+    1
     ); 
 
 //   public static final IntakeMotorConfiguration kIntakeMotorConfiguration = new IntakeMotorConfiguration(
@@ -146,16 +149,16 @@ public class IntakeConstants {
   public static final IntakePivotGains kPivotGains =  
     switch (Constants.kCurrentMode) {
       case REAL -> new IntakePivotGains(
-        40.0,
+        50.0,
         0.0,
         0.77,
-        1,
         2,
-        5,
+        4,
+        20,
         0.2,
         0.0,
         0.0, 
-        -0.75); 
+        -0.4); 
       case SIM -> new IntakePivotGains(
         550.0,
         0.0,

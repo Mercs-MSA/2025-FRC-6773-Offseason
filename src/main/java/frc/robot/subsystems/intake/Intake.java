@@ -11,20 +11,25 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.visualizers.PivotVisualizer;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class Intake extends SubsystemBase {
   public enum IntakePivotGoal {
-    kFloorPickup(() -> Rotation2d.fromRotations(0.01)),
-    kStow(() -> Rotation2d.fromRotations(-0.24)),
-    kTransfer(() -> Rotation2d.fromRotations(-0.25)),
+    kFloorPickup(() -> Rotation2d.fromRotations(0.0)),
+    kStow(() -> Rotation2d.fromRotations(-0.17)),
+    kTransfer(() -> Rotation2d.fromRotations(-0.17)),
+    kSubstationPickup(() -> Rotation2d.fromRotations(-0.15)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(
       new LoggedTunableNumber("Intake/Feedback/PivotSetpointDegrees", 0.0).get()));
@@ -72,7 +77,7 @@ public class Intake extends SubsystemBase {
 
   private final LoggedTunableNumber kRollerVoltage = new LoggedTunableNumber("Intake/Roller/RollerVoltage", IntakeConstants.kRollerIntakingVoltage);
 
-  private boolean detectedGamepiece = false;
+  // private boolean detectedGamepiece = false;
   private IntakePivotGoal currentPivotGoal;
 
   private final PivotVisualizer kPivotVisualizer;
@@ -159,6 +164,13 @@ public class Intake extends SubsystemBase {
     currentPivotGoal = desiredGoal;
   }
 
+  public boolean ifStowed(){
+    if(currentPivotGoal.equals(IntakePivotGoal.kStow)){
+      return true;
+    }
+        return false;
+  }
+
   public void stop(boolean stopRollers, boolean stopPivot) {
     if (stopRollers) {
       kRollerHardware.stop();
@@ -186,6 +198,10 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  public void setBrakeMode(Boolean value){
+    kPivotHardware.setBrakeMode(value);
+  }
+
   @AutoLogOutput(key = "Pivot/Feedback/AtGoal")
   public boolean pivotAtGoal() {
     return Math.abs(getPivotErrorDegrees()) < IntakeConstants.kPivotPositionTolerance.getDegrees();
@@ -207,10 +223,23 @@ public class Intake extends SubsystemBase {
     kRollerHardware.setVoltage(IntakeConstants.kRollerStowVoltage);
   }
 
+  public void substationIntakeCommand(CommandXboxController controller){
+    if(getCoralDetected()){
+      setPivotGoal(IntakePivotGoal.kStow);
+      controller.getHID().setRumble(RumbleType.kBothRumble, 0.5);
+    } else{
+      setPivotGoal(IntakePivotGoal.kSubstationPickup);
+      controller.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+    }
+  }
 
 
   public void setRollerVoltage(double volts) {
     kRollerHardware.setVoltage(volts);
+  }
+
+  public boolean getCoralDetected(){
+    return kRollerInputs.beambreakBroken;
   }
 
 }

@@ -505,9 +505,9 @@ public class Drive extends SubsystemBase{
             kKinematics.toChassisSpeeds(optimizedSetpointStates), robotRotation));
     }
 
-    public Command setAutoAlignSide(SIDE side) {
-        return GoalPoseChooser.setSideCommand(side);
-    }
+    // public Command setAutoAlignSide(SIDE side) {
+    //     return GoalPoseChooser.setSideCommand(side);
+    // }
 
     /* Calculates DriveFeedforward based off state */
     public double calculateDriveFeedforward(SwerveModuleState currentState, SwerveModuleState unoptimizedState, SwerveModuleState optimizedState, int i) {

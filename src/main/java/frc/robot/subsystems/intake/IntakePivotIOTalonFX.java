@@ -27,6 +27,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance.NetworkMode;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -52,6 +53,8 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
   private StatusSignal<Current> supplyCurrentAmps;
   private StatusSignal<Current> statorCurrentAmps;
   private StatusSignal<Temperature> temperatureCelsius;
+
+  private NeutralModeValue currentMode = NeutralModeValue.Brake;
 
   // Control modes
   private final VoltageOut kVoltageControl = new VoltageOut(0.0);
@@ -103,12 +106,12 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
         : InvertedValue.Clockwise_Positive;
 
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 1.0;
-    motorConfiguration.Feedback.RotorToSensorRatio = hardware.gearing();
+    motorConfiguration.Feedback.SensorToMechanismRatio = hardware.gearing();
+    motorConfiguration.Feedback.RotorToSensorRatio = 1.0;
     
     // Rotor sensor is the built-in sensor
-    motorConfiguration.Feedback.FeedbackRemoteSensorID = kCANCoder.getDeviceID();
-    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    //motorConfiguration.Feedback.FeedbackRemoteSensorID = kCANCoder.getDeviceID();
+    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
     
     // Enable to true because arm
@@ -198,6 +201,10 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
   }
 
+  public void setNeutralMode(NeutralModeValue value){
+    kMotor.setNeutralMode(value);
+  }
+
   
 
   @Override
@@ -238,6 +245,10 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
   @Override
   public void setBrakeMode(boolean enableBrake) {
-    kMotor.setNeutralMode(enableBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    NeutralModeValue newMode = enableBrake ? NeutralModeValue.Brake: NeutralModeValue.Coast;
+    if(currentMode != newMode){
+      kMotor.setNeutralMode(newMode);
+      currentMode = newMode;
+    }
   }
 }

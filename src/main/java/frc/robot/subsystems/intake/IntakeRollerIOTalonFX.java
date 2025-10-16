@@ -23,7 +23,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
 
     private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    private DigitalInput intakeBeamBreak = new DigitalInput(1);
+    private final DigitalInput intakeBeamBreak;
 
 
     //logged data for roller:
@@ -42,6 +42,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         double statusSignalUpdateFrequency
     ) {
         kMotor = new TalonFX(hardware.motorId(), canbus);
+        intakeBeamBreak = new DigitalInput(hardware.intakeBeamBreakIO());
+
 
         motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = configuration.enableSupplyCurrentLimit();
         motorConfiguration.CurrentLimits.SupplyCurrentLimit = configuration.supplyCurrentLimitAmps();
@@ -92,8 +94,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     inputs.supplyCurrentAmps = supplyAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorAmps.getValueAsDouble();
     inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
-
-    inputs.beamBreakBroken = intakeBeamBreak.get();
+    inputs.beambreakBroken = intakeBeamBreak.get();
   }
 
 
