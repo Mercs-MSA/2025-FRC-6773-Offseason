@@ -180,7 +180,7 @@ public class RobotContainer {
         robotDrive.acceptJoystickInputs(
             () -> - driverController.getLeftY(),
             () -> - driverController.getLeftX(),
-            () -> - driverController.getRightX(),
+            () -> driverController.getRightX(),
             () -> driverController.getHID().getPOV());
 
 
@@ -314,71 +314,28 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
-            driverController.leftBumper()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
-            driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)));
-            driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
-            // // driverController.leftBumper().onTrue(new InstantCommand(() -> m_Manipulator.intake()));
+            driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.a()
+                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)))
+                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+
+            driverController.b()
+                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)))
+                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+
+            driverController.y()
+                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)))
+                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+           
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
+
             driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
-
-            // driverController.leftTrigger()
-            //     .whileTrue(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup))
-            //     .onFalse(teleopCommands.runPivotAndHoldCommand(IntakePivotGoal.kStow));
-
-
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
 
-            // getPOV == -1 if nothing is pressed, so if it doesn't return that
-            // then pov control is being used as its being pressed
-            // new Trigger(()-> driverController.getHID().getPOV() != -1)
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.a()
-            //     .onTrue(GoalPoseChooser.setSideCommand(SIDE.ALGAE)
-            //     .andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_ALGAE)))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-
-            // driverController.b()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_BARGE))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.x()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.leftBumper()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LEFT))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.rightBumper()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.RIGHT))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.leftTrigger()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.UP))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // driverController.rightTrigger()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DOWN))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // BOI ignore ts //
-            // driverController.rightBumper()
-            // .onTrue(Commands.runOnce(() -> intake.setPivotVoltage(-1)))
-            // .onFalse(Commands.runOnce(() -> intake.setPivotVoltage(0)));
-
-            // driverController.leftBumper()
-            // .onTrue(Commands.runOnce(() -> intake.setPivotVoltage(1)))
-            // .onFalse(Commands.runOnce(() -> intake.setPivotVoltage(0)));
-
-            
+        
         } 
 
         else {

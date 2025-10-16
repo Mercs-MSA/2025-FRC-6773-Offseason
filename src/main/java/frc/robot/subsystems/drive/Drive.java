@@ -355,6 +355,10 @@ public class Drive extends SubsystemBase{
         return Commands.runOnce(() -> setDriveState(state), this);
     }
 
+    public Command setDriveStateConstant(DriveState state) {
+        return Commands.run(() -> setDriveState(state), this);
+    }
+
     /* Set's state initially, and doesn't end till interruped by another drive command */
     public Command setDriveStateCommandContinued(DriveState state) {
         return new FunctionalCommand(
@@ -499,6 +503,10 @@ public class Drive extends SubsystemBase{
         Logger.recordOutput("Drive/Swerve/SetpointsChassisSpeeds", kKinematics.toChassisSpeeds(optimizedSetpointStates));
         Logger.recordOutput("Drive/Odometry/FieldSetpointChassisSpeed", ChassisSpeeds.fromRobotRelativeSpeeds(
             kKinematics.toChassisSpeeds(optimizedSetpointStates), robotRotation));
+    }
+
+    public Command setAutoAlignSide(SIDE side) {
+        return GoalPoseChooser.setSideCommand(side);
     }
 
     /* Calculates DriveFeedforward based off state */
