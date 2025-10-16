@@ -1,0 +1,49 @@
+{
+ "name":"New Path",
+ "version":1,
+ "snapshot":{
+  "waypoints":[],
+  "constraints":[],
+  "targetDt":0.05
+ },
+ "params":{
+  "waypoints":[
+    {"x":{"exp":"AL.x", "val":3.1}, "y":{"exp":"AL.y", "val":4.2}, "heading":{"exp":"AL.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"AM.x", "val":3.1}, "y":{"exp":"AM.y", "val":4.04}, "heading":{"exp":"AM.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"AR.x", "val":3.1}, "y":{"exp":"AR.y", "val":3.87}, "heading":{"exp":"AR.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"BLNEW.x", "val":4.063492298126221}, "y":{"exp":"BLNEW.y", "val":5.203369140625}, "heading":{"exp":"BLNEW.heading", "val":2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"BMNEW.x", "val":3.8979341983795166}, "y":{"exp":"BMNEW.y", "val":5.141284942626953}, "heading":{"exp":"BMNEW.heading", "val":2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"BRNEW.x", "val":3.7323758602142334}, "y":{"exp":"BRNEW.y", "val":5.058506011962891}, "heading":{"exp":"BRNEW.heading", "val":2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"CLNEW.x", "val":5.305179119110107}, "y":{"exp":"CLNEW.y", "val":5.058506011962891}, "heading":{"exp":"CLNEW.heading", "val":1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"CMNEW.x", "val":5.139620780944824}, "y":{"exp":"CMNEW.y", "val":5.141284942626953}, "heading":{"exp":"CMNEW.heading", "val":1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"CRNEW.x", "val":4.994757175445557}, "y":{"exp":"CRNEW.y", "val":5.224063873291016}, "heading":{"exp":"CRNEW.heading", "val":1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"DLNEW.x", "val":5.760464191436768}, "y":{"exp":"DLNEW.y", "val":3.816819190979004}, "heading":{"exp":"DLNEW.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"DMNEW.x", "val":5.760464191436768}, "y":{"exp":"DMNEW.y", "val":4.023766994476318}, "heading":{"exp":"DMNEW.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"DRNEW.x", "val":5.760464191436768}, "y":{"exp":"DRNEW.y", "val":4.168630599975586}, "heading":{"exp":"DRNEW.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"ELNEW.x", "val":4.974062442779541}, "y":{"exp":"ELNEW.y", "val":2.8648595809936523}, "heading":{"exp":"ELNEW.heading", "val":-1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"EMNEW.x", "val":5.098231315612793}, "y":{"exp":"EMNEW.y", "val":2.926943778991699}, "heading":{"exp":"EMNEW.heading", "val":-1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"ERNEW.x", "val":5.222399711608887}, "y":{"exp":"ERNEW.y", "val":3.009722948074341}, "heading":{"exp":"ERNEW.heading", "val":-1.0471975511965976}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"FLNEW.x", "val":3.7116811275482178}, "y":{"exp":"FLNEW.y", "val":2.989028215408325}, "heading":{"exp":"FLNEW.heading", "val":-2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"FMNEW.x", "val":3.8565444946289062}, "y":{"exp":"FMNEW.y", "val":2.9062490463256836}, "heading":{"exp":"FMNEW.heading", "val":-2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"FRNEW.x", "val":3.980713129043579}, "y":{"exp":"FRNEW.y", "val":2.8648595809936523}, "heading":{"exp":"FRNEW.heading", "val":-2.0943951023931953}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"B_IR.x", "val":1.17}, "y":{"exp":"B_IR.y", "val":1.02}, "heading":{"exp":"B_IR.heading", "val":-2.199114857512855}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"B_IL.x", "val":1.42}, "y":{"exp":"B_IL.y", "val":7.21}, "heading":{"exp":"B_IL.heading", "val":2.199114857512855}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_IL.x", "val":16.08}, "y":{"exp":"R_IL.y", "val":0.78}, "heading":{"exp":"R_IL.heading", "val":5.340707511102648}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_IR.x", "val":16.45}, "y":{"exp":"R_IR.y", "val":7.01}, "heading":{"exp":"R_IR.heading", "val":4.084070449666731}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":false}],
+  "targetDt":{
+   "exp":"0.05 s",
+   "val":0.05
+  }
+ },
+ "trajectory":{
+  "sampleType":null,
+  "waypoints":[],
+  "samples":[],
+  "splits":[]
+ },
+ "events":[]
+}
