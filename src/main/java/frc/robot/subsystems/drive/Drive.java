@@ -528,6 +528,10 @@ public class Drive extends SubsystemBase{
         setPoses(pose, pose);
     }
 
+    public Command setAutoAlignSide(SIDE side) {
+        return GoalPoseChooser.setSideCommand(side);
+    }
+
     /** Adds a new timestamped vision measurement. */
     public void addVisionMeasurement(
         Pose2d visionRobotPoseMeters,

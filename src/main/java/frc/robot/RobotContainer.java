@@ -314,9 +314,9 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
-            driverController.leftBumper()
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
-                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.leftBumper().onTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateCommand(DriveState.DRIVE_TO_CORAL)));
+            driverController.rightBumper().onTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateCommand(DriveState.DRIVE_TO_CORAL)));
+            
             driverController.a().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
             driverController.b().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)));
             driverController.y().onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)));
