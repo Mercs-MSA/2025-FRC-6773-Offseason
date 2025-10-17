@@ -1,28 +1,13 @@
 package frc.robot;
 
-import frc.robot.subsystems.elevator.Elevator;
-// import frc.robot.subsystems.elevator.Elevator;
-// import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.intake.Intake;
-// import frc.robot.subsystems.intake.Intake.Gamepiece;
 import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.manipulator.Manipulator;
 
-import java.lang.annotation.ElementType;
 
-// import frc.robot.subsystems.intake.Intake.RollerGoal;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-// import frc.robot.subsystems.climb.Climb;
-// import frc.robot.subsystems.climb.Climb.ClimbVoltageGoal;
-import frc.robot.utils.debugging.LoggedTunableNumber;
-
 /**
  * <p> A commands factory for the teleoperated period. 
  * 
@@ -41,8 +26,6 @@ public class TeleopCommands {
     // private final Elevator kElevator;
     private final Intake kIntake;
     private final Manipulator kManipulator;
-    private final Elevator kElevator;
-    // private final Climb kClimb;
 
     private CommandXboxController kController;
 
@@ -68,10 +51,9 @@ public class TeleopCommands {
      * @param intake The intake subsystem intance
      * @param climb The climb subsystem instance
      */
-    public TeleopCommands(Intake intake, Elevator elevator, Manipulator manipulator, CommandXboxController controller) {
+    public TeleopCommands(Intake intake, Manipulator manipulator, CommandXboxController controller) {
         // kElevator = elevator;
         kIntake = intake;
-        kElevator = elevator;
         kManipulator = manipulator;
         kController = controller;
         // kClimb = climb;
@@ -150,13 +132,6 @@ public class TeleopCommands {
             
         
     }
-
-    // public Command checkManipulatorCommand() {
-    //     return Commands.waitUntil(() -> kManipulator.getCoralDetected())
-    //         .andThen(Commands.runOnce(() -> {
-    //             stopRollerCommand();
-    //         }));
-    // }
 
     public Command runManipulatorRollersCommand() {
         return Commands.runOnce(() -> {

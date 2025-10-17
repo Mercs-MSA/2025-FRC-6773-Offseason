@@ -5,7 +5,6 @@ import frc.robot.Constants;
 import frc.robot.utils.visualizers.PivotVisualizer.PivotVisualizerConfiguration;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -138,7 +137,7 @@ public class IntakeConstants {
   
   public static final double kPivotGearing = (23.0 / 1.0) * (64.0 / 12.0); //TODO Check this value
 
-  public static final double kRollerIntakingVoltage = 4.5;
+  public static final double kRollerIntakingVoltage = 3;
 
   public static final double kRollerStowVoltage = 1;
 
@@ -152,8 +151,8 @@ public class IntakeConstants {
         50.0,
         0.0,
         0.77,
+        1,
         2,
-        4,
         20,
         0.2,
         0.0,

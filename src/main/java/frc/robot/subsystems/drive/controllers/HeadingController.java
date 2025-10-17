@@ -76,7 +76,6 @@ public class HeadingController {
         double ffOutput = snapController.getSetpoint().velocity;
         double output = Math.toRadians(pidOutput + ffOutput);
 
-        double setpointErrorDegrees = snapController.getSetpoint().position - robotRotation.getDegrees();
         double goalErrorDegrees = snapController.getGoal().position - robotRotation.getDegrees();
 
         double adjustedOutput = output;

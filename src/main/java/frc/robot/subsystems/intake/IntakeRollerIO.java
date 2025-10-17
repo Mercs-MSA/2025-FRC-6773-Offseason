@@ -6,7 +6,6 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 
 /** The 2 bar intake subsystem's hardware interface */
 public interface IntakeRollerIO {

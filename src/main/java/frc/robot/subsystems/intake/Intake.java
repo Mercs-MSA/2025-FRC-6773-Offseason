@@ -4,22 +4,17 @@
 
 package frc.robot.subsystems.intake;
 
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.visualizers.PivotVisualizer;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -75,7 +70,6 @@ public class Intake extends SubsystemBase {
           "Intake/MotionMagic/Pivot_kMaxAcceleration", 
           IntakeConstants.kPivotGains.maxAccelerationRotationsPerSecondSquared());
 
-  private final LoggedTunableNumber kRollerVoltage = new LoggedTunableNumber("Intake/Roller/RollerVoltage", IntakeConstants.kRollerIntakingVoltage);
 
   // private boolean detectedGamepiece = false;
   private IntakePivotGoal currentPivotGoal;

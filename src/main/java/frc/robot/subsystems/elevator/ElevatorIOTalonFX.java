@@ -5,7 +5,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -36,12 +35,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private StatusSignal<Current> statorCurrentAmpsLeft;
     private StatusSignal<Temperature> temperatureCelsiusLeft;
 
-    private StatusSignal<Angle> positionRotationsRight;
-    private StatusSignal<AngularVelocity> velocityRotationsPerSecRight;
-    private StatusSignal<Voltage> appliedVoltsRight;
-    private StatusSignal<Current> supplyCurrentAmpsRight;
-    private StatusSignal<Current> statorCurrentAmpsRight;
-    private StatusSignal<Temperature> temperatureCelsiusRight;
 
     private final VoltageOut kVoltageControl = new VoltageOut(0.0);
     private final PositionVoltage kPositionControl = new PositionVoltage(0.0);

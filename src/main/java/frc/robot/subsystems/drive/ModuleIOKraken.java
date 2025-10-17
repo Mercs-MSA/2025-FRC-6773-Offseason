@@ -4,7 +4,6 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -47,7 +46,6 @@ public class ModuleIOKraken implements ModuleIO {
     private StatusSignal<AngularAcceleration> driveAccelerationMPSS;
 
     private TalonFX azimuthMotor;
-    private PositionDutyCycle azimuthPositionControl = new PositionDutyCycle(0.0);
     private VoltageOut azimuthVoltageControl = new VoltageOut(0.0);
     private double azimuthAppliedVolts = 0.0;
 
@@ -80,7 +78,7 @@ public class ModuleIOKraken implements ModuleIO {
 
         driveConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         driveConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfig.Feedback.SensorToMechanismRatio = kDriveMotorGearing / kWheelCircumferenceMeters;
@@ -121,7 +119,7 @@ public class ModuleIOKraken implements ModuleIO {
 
         turnConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         turnConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnConfig.MotorOutput.Inverted = kTurnMotorInvert ? 
             InvertedValue.Clockwise_Positive : 
             InvertedValue.CounterClockwise_Positive;

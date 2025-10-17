@@ -3,15 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
@@ -23,16 +20,14 @@ import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveState;
-import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
+import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakePivotIO;
 import frc.robot.subsystems.intake.IntakePivotIOSim;
@@ -48,15 +43,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.utils.debugging.LoggedTunableNumber;
-
 import static frc.robot.subsystems.drive.DriveConstants.*;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
@@ -168,7 +157,7 @@ public class RobotContainer {
                 break;
         }
         autonCommands = new AutonCommands(robotDrive);
-        teleopCommands = new TeleopCommands(m_intake, m_Elevator, m_Manipulator, driverController);
+        teleopCommands = new TeleopCommands(m_intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -314,52 +303,36 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
-            // driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            // driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateConstant(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            driverController.a()
+            driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+            
+            operatorController.a()
                 .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)))
                 .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
 
-            driverController.b()
+            operatorController.b()
                 .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)))
                 .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
 
-            driverController.y()
+            operatorController.y()
                 .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)))
                 .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
            
-            driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
+            operatorController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
 
             driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
 
-            driverController.leftBumper().onTrue(teleopCommands.runSubstationPickupCommand())
-                .whileFalse(teleopCommands.stowCommand());
+            // driverController.leftBumper().onTrue(teleopCommands.runSubstationPickupCommand())
+            //     .whileFalse(teleopCommands.stowCommand());
 
         
         } 
 
         else {
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
-
-            // driverController.x()
-            //     .onTrue(robotDrive.setDriveStateCommand(DriveState.SYSID_CHARACTERIZATION).andThen(Commands.run(() -> 
-            //         robotDrive.runMOICharacterization(20), robotDrive)))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-
-
-            // driverController.x()
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.TELEOP_SNIPER))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
-            // getPOV == -1 if nothing is pressed, so if it doesn't return that
-            // then pov control is being used as its being pressed
-            // new Trigger(()-> driverController.getHID().getPOV() != -1)
-            //     .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.POV_SNIPER))
-            //     .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
             driverController.b()
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))

@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.intake;
 
-import javax.swing.text.Position;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -15,7 +14,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,13 +25,11 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTableInstance.NetworkMode;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotGains;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotHardware;
 import frc.robot.subsystems.intake.IntakeConstants.IntakePivotTalonFXConfiguration;
@@ -194,9 +190,6 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
   @Override
   public void setPosition(Rotation2d goalPosition) {
-    boolean withinTolerance = Math.abs(goalPosition.getRotations() - positionRotations.getValueAsDouble()) < IntakeConstants.kPivotPositionTolerance.getRotations();
-
-    // kMotor.setControl(kPositionControl.withPosition(goalPosition.getRotations()).withSlot(withinTolerance ? 1 : 0));
     kMotor.setControl(kPositionControl.withPosition(goalPosition.getRotations()).withSlot(0));
 
   }
