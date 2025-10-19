@@ -162,8 +162,8 @@ public class RobotContainer {
                 m_Manipulator = new Manipulator(null);
                 break;
         }
-        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_intake, m_Manipulator);
-        teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
+        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_Intake, m_Manipulator);
+        teleopCommands = new TeleopCommands(m_Elevator, m_Intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -185,8 +185,7 @@ public class RobotContainer {
         configureStateTriggers();
         configureButtonBindings();
 
-        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
-        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
+        
 
         
     }
@@ -301,6 +300,9 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+
+        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
+        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
         
         ArrayList<Trigger> positionButtons = new ArrayList<Trigger>();
         positionButtons.add(operatorController.y());
