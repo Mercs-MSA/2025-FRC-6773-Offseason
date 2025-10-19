@@ -174,7 +174,7 @@ public class RobotContainer {
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
             () -> - driverController.getLeftY(),
-            () -> - driverController.getLeftX(),
+            () -> -driverController.getLeftX(),
             () -> driverController.getRightX(),
             () -> driverController.getHID().getPOV());
 
@@ -326,13 +326,13 @@ public class RobotContainer {
                  .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
                  .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.leftBumper()
+            driverController.leftStick()
                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.rightBumper()
+            driverController.rightStick()
                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
@@ -348,6 +348,10 @@ public class RobotContainer {
             operatorController.b().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L3));
             operatorController.a().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L2));
             operatorController.x().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.STOW));
+
+            operatorController.rightBumper().onTrue(teleopCommands.elevatorUpCommand());
+
+            driverController.leftBumper().onTrue(teleopCommands.substationIntakeCommand()).whileFalse(teleopCommands.stowCommand());
         } 
 
         else {
@@ -356,7 +360,6 @@ public class RobotContainer {
             driverController.b()
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
             
             
         }
@@ -374,5 +377,5 @@ public class RobotContainer {
         }
     }
 
-
+    
 }
