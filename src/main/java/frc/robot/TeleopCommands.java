@@ -124,11 +124,13 @@ public class TeleopCommands {
 
     public Command substationIntakeCommand() {
         return Commands.parallel(
-            runPivotSubstationAndHoldCommand(),
+            runPivotAndHoldCommand(IntakePivotGoal.kStow),
+            new InstantCommand(()-> kElevator.setGoal(ElevatorGoal.kStow)),
             runRollerCommand(),
             runManipulatorRollersCommand()
         );
     }
+
 
     public Command stowCommand() {
         // return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);

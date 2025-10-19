@@ -23,7 +23,7 @@ public class Intake extends SubsystemBase {
   public enum IntakePivotGoal {
     kFloorPickup(() -> Rotation2d.fromRotations(0.0)),
     kStow(() -> Rotation2d.fromRotations(-0.17)),
-    kTransfer(() -> Rotation2d.fromRotations(-0.17)),
+    kTransfer(() -> Rotation2d.fromRotations(-0.166)),
     kSubstationPickup(() -> Rotation2d.fromRotations(-0.15)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(

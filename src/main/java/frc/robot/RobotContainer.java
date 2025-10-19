@@ -53,10 +53,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
-    private final Intake m_intake;  
+    private final Intake m_Intake;  
     private final Elevator m_Elevator;
     private final Manipulator m_Manipulator;  
-    private final Vision m_vision;
+    private final Vision m_Vision;
+
+    
+    private Trigger intakeCoralTrigger;
+    private Trigger manipulatorCoralTrigger;
 
     
     // Define other utility classes
@@ -96,12 +100,12 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2(), null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
 
-                robotDrive.setVision(m_vision);
-                m_intake = new Intake(
+                robotDrive.setVision(m_Vision);
+                m_Intake = new Intake(
                     new IntakePivotIOTalonFX(
                         IntakeConstants.kPivotMotorHardware,
                         IntakeConstants.kPivotMotorConfiguration,
@@ -123,13 +127,13 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {}, null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
-                robotDrive.setVision(m_vision);
+                robotDrive.setVision(m_Vision);
 
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
-                m_intake = new Intake(
+                m_Intake = new Intake(
                     new IntakePivotIOSim(
                         0.02,
                         IntakeConstants.kPivotMotorHardware,
@@ -150,16 +154,16 @@ public class RobotContainer {
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {}, null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
 
-                m_intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
+                m_Intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
                 m_Manipulator = new Manipulator(null);
                 break;
         }
-        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_intake, m_Manipulator);
-        teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
+        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_Intake, m_Manipulator);
+        teleopCommands = new TeleopCommands(m_Elevator, m_Intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -170,7 +174,7 @@ public class RobotContainer {
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
             () -> - driverController.getLeftY(),
-            () -> - driverController.getLeftX(),
+            () -> -driverController.getLeftX(),
             () -> driverController.getRightX(),
             () -> driverController.getHID().getPOV());
 
@@ -180,6 +184,8 @@ public class RobotContainer {
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
         configureStateTriggers();
         configureButtonBindings();
+
+        
 
         
     }
@@ -294,6 +300,10 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+
+        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
+        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
+        
         ArrayList<Trigger> positionButtons = new ArrayList<Trigger>();
         positionButtons.add(operatorController.y());
         positionButtons.add(operatorController.b());
@@ -305,19 +315,24 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
+            intakeCoralTrigger.onTrue(rumbleCommandDriver().withTimeout(0.5).alongWith(rumbleCommandOperator().withTimeout(0.5)));
+            manipulatorCoralTrigger.onTrue(rumbleCommandDriver().withTimeout(0.125).alongWith(rumbleCommandOperator().withTimeout(0.125)).andThen(rumbleCommandDriver().withTimeout(0.125).alongWith(rumbleCommandOperator().withTimeout(0.125))));
+
+
+
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             driverController.x()
                  .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
                  .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.leftBumper()
+            driverController.leftStick()
                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            driverController.rightBumper()
+            driverController.rightStick()
                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
@@ -333,6 +348,10 @@ public class RobotContainer {
             operatorController.b().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L3));
             operatorController.a().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L2));
             operatorController.x().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.STOW));
+
+            operatorController.rightBumper().onTrue(teleopCommands.elevatorUpCommand());
+
+            driverController.leftBumper().onTrue(teleopCommands.substationIntakeCommand()).whileFalse(teleopCommands.stowCommand());
         } 
 
         else {
@@ -341,7 +360,6 @@ public class RobotContainer {
             driverController.b()
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.LINEAR_TEST))
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-
             
             
         }
@@ -352,12 +370,12 @@ public class RobotContainer {
     }
 
     public void setIntakeBrakeMode(){
-        if(m_intake.getCoralDetected()){
-            m_intake.setBrakeMode(false);
-        } else if(!m_intake.getCoralDetected()){
-            m_intake.setBrakeMode(true);
+        if(m_Intake.getCoralDetected()){
+            m_Intake.setBrakeMode(false);
+        } else if(!m_Intake.getCoralDetected()){
+            m_Intake.setBrakeMode(true);
         }
     }
 
-
+    
 }
