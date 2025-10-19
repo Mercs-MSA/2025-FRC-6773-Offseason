@@ -185,8 +185,7 @@ public class RobotContainer {
         configureStateTriggers();
         configureButtonBindings();
 
-        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
-        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
+        
 
         
     }
@@ -301,6 +300,9 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+
+        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
+        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
         
         ArrayList<Trigger> positionButtons = new ArrayList<Trigger>();
         positionButtons.add(operatorController.y());
