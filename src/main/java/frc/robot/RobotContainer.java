@@ -53,10 +53,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class RobotContainer {
     // Define subsystems
     private final Drive robotDrive;
-    private final Intake m_intake;  
+    private final Intake m_Intake;  
     private final Elevator m_Elevator;
     private final Manipulator m_Manipulator;  
-    private final Vision m_vision;
+    private final Vision m_Vision;
+
+    
+    private Trigger intakeCoralTrigger;
+    private Trigger manipulatorCoralTrigger;
 
     
     // Define other utility classes
@@ -96,12 +100,12 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOKraken(kBackRightHardware ))
                 }, new GyroIOPigeon2(), null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
 
-                robotDrive.setVision(m_vision);
-                m_intake = new Intake(
+                robotDrive.setVision(m_Vision);
+                m_Intake = new Intake(
                     new IntakePivotIOTalonFX(
                         IntakeConstants.kPivotMotorHardware,
                         IntakeConstants.kPivotMotorConfiguration,
@@ -123,13 +127,13 @@ public class RobotContainer {
                     new Module("BR", new ModuleIOSim())
                 }, new GyroIO() {}, null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
-                robotDrive.setVision(m_vision);
+                robotDrive.setVision(m_Vision);
 
                 m_Manipulator = new Manipulator(new ManipulatorIOTalonFX(ManipulatorConstants.kManipulatorHardware, ManipulatorConstants.kMotorConfiguration, ManipulatorConstants.kStatusSignalUpdateFrequencyHz));
-                m_intake = new Intake(
+                m_Intake = new Intake(
                     new IntakePivotIOSim(
                         0.02,
                         IntakeConstants.kPivotMotorHardware,
@@ -150,15 +154,15 @@ public class RobotContainer {
                     new Module("BR", new ModuleIO() {})
                 }, new GyroIO() {}, null, m_Elevator);
 
-                m_vision = new Vision(new CameraIO[]{
+                m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
                 });
 
-                m_intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
+                m_Intake = new Intake(new IntakePivotIO(){}, new IntakeRollerIO(){});
                 m_Manipulator = new Manipulator(null);
                 break;
         }
-        autonCommands = new AutonCommands(robotDrive);
+        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_intake, m_Manipulator);
         teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
@@ -180,6 +184,9 @@ public class RobotContainer {
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
         configureStateTriggers();
         configureButtonBindings();
+
+        intakeCoralTrigger = new Trigger(() -> m_Intake.getCoralDetected());
+        manipulatorCoralTrigger = new Trigger(() -> m_Manipulator.getCoralDetected());
 
         
     }
@@ -226,45 +233,45 @@ public class RobotContainer {
                 startCommandName += "RREEF";
                 break;
         }
-
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
+        
+        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
         startCommandName = startCommandName.split("_")[1];
 
-        switch ((int)sourcePref.get()) {
-            case 0: // Source T
-                startCommandName += "_ST";
-                break;
-            case 1: // Source B
-                startCommandName += "_SB";
-                break;
-            default:
-                startCommandName += "_ST";
-                break;
-        }
+        // switch ((int)sourcePref.get()) {
+        //     case 0: // Source T
+        //         startCommandName += "_ST";
+        //         break;
+        //     case 1: // Source B
+        //         startCommandName += "_SB";
+        //         break;
+        //     default:
+        //         startCommandName += "_ST";
+        //         break;
+        // }
+        // autoCommand.addCommands(
+        //     autonCommands.runAutonIntakeSegment(startCommandName)
+        // );
 
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        // startCommandName = startCommandName.split("_")[1];
 
-        startCommandName = startCommandName.split("_")[1];
+        // switch ((int)sourcePref.get()) {
+        //     case 0: // Source T
+        //         startCommandName += "_TLREEF";
+        //         break;
+        //     case 1: // Source B
+        //         startCommandName += "_BLREEF";
+        //         break;
+        //     default:
+        //         startCommandName += "_TRREEF";
+        //         break;
+        // }
 
-        switch ((int)sourcePref.get()) {
-            case 0: // Source T
-                startCommandName += "_TLREEF";
-                break;
-            case 1: // Source B
-                startCommandName += "_BLREEF";
-                break;
-            default:
-                startCommandName += "_TRREEF";
-                break;
-        }
+        // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
 
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
-        for (int i = 0 ; i < 10; i++) {
-            startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
-            autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-        }
+        // for (int i = 0 ; i < 10; i++) {
+        //     startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
+        //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        // }
 
         return autoCommand;
     }
@@ -294,6 +301,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        
         ArrayList<Trigger> positionButtons = new ArrayList<Trigger>();
         positionButtons.add(operatorController.y());
         positionButtons.add(operatorController.b());
@@ -304,6 +312,11 @@ public class RobotContainer {
 
 
         if (useCompetitionBindings) {
+
+            intakeCoralTrigger.onTrue(rumbleCommandDriver().withTimeout(0.5).alongWith(rumbleCommandOperator().withTimeout(0.5)));
+            manipulatorCoralTrigger.onTrue(rumbleCommandDriver().withTimeout(0.125).alongWith(rumbleCommandOperator().withTimeout(0.125)).andThen(rumbleCommandDriver().withTimeout(0.125).alongWith(rumbleCommandOperator().withTimeout(0.125))));
+
+
 
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
@@ -324,6 +337,7 @@ public class RobotContainer {
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
            
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
+            
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
@@ -354,10 +368,10 @@ public class RobotContainer {
     }
 
     public void setIntakeBrakeMode(){
-        if(m_intake.getCoralDetected()){
-            m_intake.setBrakeMode(false);
-        } else if(!m_intake.getCoralDetected()){
-            m_intake.setBrakeMode(true);
+        if(m_Intake.getCoralDetected()){
+            m_Intake.setBrakeMode(false);
+        } else if(!m_Intake.getCoralDetected()){
+            m_Intake.setBrakeMode(true);
         }
     }
 
