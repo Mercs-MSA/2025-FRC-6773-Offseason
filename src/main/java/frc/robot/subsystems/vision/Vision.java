@@ -94,7 +94,7 @@ public class Vision {
         double xyScalar = Math.pow(avgDistMeters, 2) / numberOfTargets;
 
         // Case: single far-away tag → not reliable
-        if (numberOfTargets == 1 && avgDistMeters > 3.5) {
+        if (numberOfTargets == 1 && avgDistMeters > 5.5) {
             return invalidObservation(camData);
         }
 

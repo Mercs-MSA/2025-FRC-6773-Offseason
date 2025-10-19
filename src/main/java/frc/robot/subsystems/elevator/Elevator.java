@@ -51,6 +51,15 @@ public class Elevator extends SubsystemBase {
     }
   }
 
+  public enum ElevatorState {
+    L2,
+    STOW,
+    L3,
+    L4
+  }
+
+  private ElevatorState currentState = ElevatorState.STOW;
+
   private final ElevatorIO kHardware;
   private final ElevatorIOInputsAutoLogged kInputs = new ElevatorIOInputsAutoLogged();
   // private final MagneticSensorIO kSensor;
@@ -289,6 +298,32 @@ public class Elevator extends SubsystemBase {
 
   public ElevatorGoal getGoal(){
     return currentElevatorGoal;
+  }
+
+  public ElevatorState getCurrentState() {
+    return currentState;
+  }
+
+  public void setElevatorGoalWithState() {  
+    switch (currentState) {
+      case L2:
+        setGoal(ElevatorGoal.kL2Coral);
+        break;
+      case L3:
+        setGoal(ElevatorGoal.kL3Coral);
+        break;
+      case L4:
+        setGoal(ElevatorGoal.kL4Coral);
+        break;
+      case STOW:
+        setGoal(ElevatorGoal.kStow);
+        break;
+    }
+  }
+
+  public void setElevatorState(ElevatorState state) {
+    this.currentState = state;
+    
   }
 
   /**

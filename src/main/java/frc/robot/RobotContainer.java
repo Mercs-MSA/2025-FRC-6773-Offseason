@@ -20,10 +20,12 @@ import frc.robot.subsystems.drive.ModuleIOKraken;
 import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -157,7 +159,7 @@ public class RobotContainer {
                 break;
         }
         autonCommands = new AutonCommands(robotDrive);
-        teleopCommands = new TeleopCommands(m_intake, m_Manipulator, driverController);
+        teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -303,32 +305,33 @@ public class RobotContainer {
 
         if (useCompetitionBindings) {
 
-            driverController.leftBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.LEFT).andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            driverController.rightBumper().whileTrue(robotDrive.setAutoAlignSide(SIDE.RIGHT).andThen(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))).onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
-            
-            operatorController.a()
-                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL2Coral)))
-                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+            driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
-            operatorController.b()
-                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL3Coral)))
-                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+            driverController.x()
+                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
+                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
-            operatorController.y()
-                .onTrue(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kL4Coral)))
-                .onFalse(new InstantCommand(() -> m_Elevator.setGoal(ElevatorGoal.kStow)));
+            driverController.leftBumper()
+                .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onTrue(teleopCommands.elevatorUpCommand())
+                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
+            driverController.rightBumper()
+                .onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onTrue(teleopCommands.elevatorUpCommand())
+                .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
            
-            operatorController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
-
-            driverController.x().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
+            driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
 
-            // driverController.leftBumper().onTrue(teleopCommands.runSubstationPickupCommand())
-            //     .whileFalse(teleopCommands.stowCommand());
-
-        
+            operatorController.y().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L4));
+            operatorController.b().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L3));
+            operatorController.a().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L2));
+            operatorController.x().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.STOW));
         } 
 
         else {

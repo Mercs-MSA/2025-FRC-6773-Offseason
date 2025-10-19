@@ -129,7 +129,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        Logger.recordOutput("Field/TestPose", new Pose2d(FieldConstants.testPoseX.getAsDouble(), FieldConstants.testPoseY.getAsDouble(), Rotation2d.fromDegrees(FieldConstants.testPoseRotation.getAsDouble())));
+        //Logger.recordOutput("Field/TestPose", new Pose2d(FieldConstants.testPoseX.getAsDouble(), FieldConstants.testPoseY.getAsDouble(), Rotation2d.fromDegrees(FieldConstants.testPoseRotation.getAsDouble())));
         mRobotContainer.setIntakeBrakeMode();
     }
 

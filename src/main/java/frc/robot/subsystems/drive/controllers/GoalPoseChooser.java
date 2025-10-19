@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,8 +50,6 @@ public class GoalPoseChooser {
     /* Splits the field into hexagon regions of the reef 
      * We got the left or right side of the side we are closest
      */
-
-    
     public static Pose2d getReefHexagonalPose(Pose2d robotPose) {
         Rotation2d angleFromReefCenter = turnFromReefOriginForHexagon(robotPose);
         Pose2d goal;
@@ -65,52 +64,10 @@ public class GoalPoseChooser {
                 goal = FieldConstants.DR;
             }
             
-            else goal = FieldConstants.DM;
+            else goal = FieldConstants.DD;
         } 
         
         else if(inBetween(30.0, 90.0, angleFromReefCenter.getDegrees())) {
-            Logger.recordOutput("Drive/ReefSide", "E");
-
-            if(side.equals(SIDE.LEFT)) {
-                goal = FieldConstants.EL;
-            }
-            
-            else if(side.equals(SIDE.RIGHT)) {
-                goal = FieldConstants.ER;
-            }
-            
-            else goal = FieldConstants.EM;
-        } 
-        
-        else if(inBetween(90.0, 150.0, angleFromReefCenter.getDegrees())) {
-            Logger.recordOutput("Drive/ReefSide", "F");
-
-            if(side.equals(SIDE.LEFT)) {
-                goal = FieldConstants.FL;
-            }
-            
-            else if(side.equals(SIDE.RIGHT)) {
-                goal = FieldConstants.FR;
-            }
-            
-            else goal = FieldConstants.FM;
-        } 
-        
-        else if(inBetween(-150.0, -90.0, angleFromReefCenter.getDegrees())) {
-            Logger.recordOutput("Drive/ReefSide", "B");
-
-            if(side.equals(SIDE.LEFT)) {
-                goal = FieldConstants.BL;
-            }
-            
-            else if(side.equals(SIDE.RIGHT)) {
-                goal = FieldConstants.BR;
-            }
-            
-            else goal = FieldConstants.BM;
-        } 
-        
-        else if(inBetween(-90.0, -30.0, angleFromReefCenter.getDegrees())){
             Logger.recordOutput("Drive/ReefSide", "C");
 
             if(side.equals(SIDE.LEFT)) {
@@ -121,7 +78,49 @@ public class GoalPoseChooser {
                 goal = FieldConstants.CR;
             }
             
-            else goal = FieldConstants.CM;
+            else goal = FieldConstants.CD;
+        } 
+        
+        else if(inBetween(90.0, 150.0, angleFromReefCenter.getDegrees())) {
+            Logger.recordOutput("Drive/ReefSide", "B");
+
+            if(side.equals(SIDE.LEFT)) {
+                goal = FieldConstants.BL;
+            }
+            
+            else if(side.equals(SIDE.RIGHT)) {
+                goal = FieldConstants.BR;
+            }
+            
+            else goal = FieldConstants.BD;
+        } 
+        
+        else if(inBetween(-150.0, -90.0, angleFromReefCenter.getDegrees())) {
+            Logger.recordOutput("Drive/ReefSide", "F");
+
+            if(side.equals(SIDE.LEFT)) {
+                goal = FieldConstants.FL;
+            }
+            
+            else if(side.equals(SIDE.RIGHT)) {
+                goal = FieldConstants.FR;
+            }
+            
+            else goal = FieldConstants.FD;
+        } 
+        
+        else if(inBetween(-90.0, -30.0, angleFromReefCenter.getDegrees())){
+            Logger.recordOutput("Drive/ReefSide", "E");
+
+            if(side.equals(SIDE.LEFT)) {
+                goal = FieldConstants.EL;
+            }
+            
+            else if(side.equals(SIDE.RIGHT)) {
+                goal = FieldConstants.ER;
+            }
+            
+            else goal = FieldConstants.ED;
         } 
         
         else {
@@ -135,12 +134,11 @@ public class GoalPoseChooser {
                 goal = FieldConstants.AR;
             }
             
-            else goal = FieldConstants.AM;
+            else goal = FieldConstants.AD;
         }
         // Logger.recordOutput("Drive/SelectedSide", side);
-        Logger.recordOutput("Drive/GoalPoseRaw", goal);
-        return AllianceFlipUtil.apply(goal);
 
+        return AllianceFlipUtil.apply(goal);
     }
 
     public static void updateSideStuff() {

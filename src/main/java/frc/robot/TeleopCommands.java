@@ -1,5 +1,8 @@
 package frc.robot;
 
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.manipulator.Manipulator;
@@ -7,6 +10,7 @@ import frc.robot.subsystems.manipulator.Manipulator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 /**
  * <p> A commands factory for the teleoperated period. 
@@ -23,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
  //TODO: rewrite logic, get rid of the two stop booleans
 public class TeleopCommands {
-    // private final Elevator kElevator;
+    private final Elevator kElevator;
     private final Intake kIntake;
     private final Manipulator kManipulator;
 
@@ -51,8 +55,8 @@ public class TeleopCommands {
      * @param intake The intake subsystem intance
      * @param climb The climb subsystem instance
      */
-    public TeleopCommands(Intake intake, Manipulator manipulator, CommandXboxController controller) {
-        // kElevator = elevator;
+    public TeleopCommands(Elevator elevator, Intake intake, Manipulator manipulator, CommandXboxController controller) {
+        kElevator = elevator;
         kIntake = intake;
         kManipulator = manipulator;
         kController = controller;
@@ -112,6 +116,7 @@ public class TeleopCommands {
     public Command floorIntakeCommand() {
         return Commands.parallel(
             runPivotAndHoldCommand(IntakePivotGoal.kFloorPickup),
+            new InstantCommand(()-> kElevator.setGoal(ElevatorGoal.kStow)),
             runRollerCommand(),
             runManipulatorRollersCommand()
         );
@@ -162,6 +167,18 @@ public class TeleopCommands {
         return Commands.run(() -> {
             //stopRollers = false;
             if (!kIntake.getCoralDetected()) { kIntake.setPivotGoal(IntakePivotGoal.kSubstationPickup); } else if (kIntake.getCoralDetected() || kIntake.ifStowed()) {  kIntake.setPivotGoal(IntakePivotGoal.kStow); };
+        });
+    }
+
+    public Command setElevatorStateCommand(ElevatorState state) {
+        return Commands.runOnce(() -> kElevator.setElevatorState(state));
+    }
+
+    public Command elevatorUpCommand(){
+        return Commands.runOnce(() -> {
+            if (kManipulator.getCoralDetected() || kElevator.getCurrentState() == ElevatorState.STOW) {
+                kElevator.setElevatorGoalWithState();
+            }
         });
     }
 
