@@ -2,6 +2,8 @@ package frc.robot.subsystems.manipulator;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -80,6 +82,9 @@ public class Manipulator extends SubsystemBase {
     kHardware.setVoltage(kRollerOuttakeVoltage);
   }
 
+  public Command outtakeCommand() {
+    return Commands.sequence(Commands.runOnce(() -> {mIntakeState = IntakeState.OUTTAKING;}), Commands.runOnce(() -> {kHardware.setVoltage(kRollerOuttakeVoltage);}));
+  }
   
 
   public boolean getCoralDetected() {
