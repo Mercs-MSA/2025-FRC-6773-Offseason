@@ -13,7 +13,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"BLREEF.x", "val":3.853935718536377}, "y":{"exp":"BLREEF.y", "val":2.897959470748902}, "heading":{"exp":"BLREEF.heading", "val":1.058016377121279}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"SB.x", "val":2.0}, "y":{"exp":"SB.y", "val":1.8}, "heading":{"exp":"SB.heading", "val":0.6709116535411918}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"1.705151081085205 m", "val":1.705151081085205}, "y":{"exp":"1.5529335737228394 m", "val":1.5529335737228394}, "heading":{"exp":"SB.heading", "val":0.6709116535411918}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":false}],

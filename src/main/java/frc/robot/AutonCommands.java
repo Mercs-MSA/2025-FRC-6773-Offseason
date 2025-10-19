@@ -96,17 +96,19 @@ public class AutonCommands {
         return new Command[]{
             setElevatorStateCommand(elevatorLevel),
             followChoreoPath(commandName),
-            elevatorUpCommand(),
+            Commands.parallel(
+                elevatorUpCommand(),
+                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).onlyWhile(() -> !kRobotDrive.atGoal())),
             kManipulator.outtakeCommand()
         };
     }
 
     public Command[] runAutonIntakeSegment(String commandName) {
         return new Command[]{
-            Commands.parallel(
+            Commands.sequence(
                 Commands.runOnce(() -> kManipulator.intake()), 
-                followChoreoPath(commandName)
-            )
+                followChoreoPath(commandName),
+                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).onlyWhile(() -> !kRobotDrive.atGoal()))
         };
     }
 }
