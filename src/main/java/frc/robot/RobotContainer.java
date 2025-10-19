@@ -162,8 +162,8 @@ public class RobotContainer {
                 m_Manipulator = new Manipulator(null);
                 break;
         }
-        autonCommands = new AutonCommands(robotDrive);
-        teleopCommands = new TeleopCommands(m_Elevator, m_Intake, m_Manipulator, driverController);
+        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_intake, m_Manipulator);
+        teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
@@ -233,45 +233,45 @@ public class RobotContainer {
                 startCommandName += "RREEF";
                 break;
         }
-
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
+        
+        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
         startCommandName = startCommandName.split("_")[1];
 
-        switch ((int)sourcePref.get()) {
-            case 0: // Source T
-                startCommandName += "_ST";
-                break;
-            case 1: // Source B
-                startCommandName += "_SB";
-                break;
-            default:
-                startCommandName += "_ST";
-                break;
-        }
+        // switch ((int)sourcePref.get()) {
+        //     case 0: // Source T
+        //         startCommandName += "_ST";
+        //         break;
+        //     case 1: // Source B
+        //         startCommandName += "_SB";
+        //         break;
+        //     default:
+        //         startCommandName += "_ST";
+        //         break;
+        // }
+        // autoCommand.addCommands(
+        //     autonCommands.runAutonIntakeSegment(startCommandName)
+        // );
 
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        // startCommandName = startCommandName.split("_")[1];
 
-        startCommandName = startCommandName.split("_")[1];
+        // switch ((int)sourcePref.get()) {
+        //     case 0: // Source T
+        //         startCommandName += "_TLREEF";
+        //         break;
+        //     case 1: // Source B
+        //         startCommandName += "_BLREEF";
+        //         break;
+        //     default:
+        //         startCommandName += "_TRREEF";
+        //         break;
+        // }
 
-        switch ((int)sourcePref.get()) {
-            case 0: // Source T
-                startCommandName += "_TLREEF";
-                break;
-            case 1: // Source B
-                startCommandName += "_BLREEF";
-                break;
-            default:
-                startCommandName += "_TRREEF";
-                break;
-        }
+        // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
 
-        autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-
-        for (int i = 0 ; i < 10; i++) {
-            startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
-            autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-        }
+        // for (int i = 0 ; i < 10; i++) {
+        //     startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
+        //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        // }
 
         return autoCommand;
     }
@@ -337,6 +337,7 @@ public class RobotContainer {
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
            
             driverController.rightTrigger().onTrue(new InstantCommand(() -> m_Manipulator.outtake()));
+            
 
             driverController.leftTrigger().onTrue(teleopCommands.floorIntakeCommand())
                 .whileFalse(teleopCommands.stowCommand());
