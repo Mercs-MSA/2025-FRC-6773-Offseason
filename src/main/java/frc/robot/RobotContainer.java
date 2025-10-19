@@ -162,8 +162,8 @@ public class RobotContainer {
                 m_Manipulator = new Manipulator(null);
                 break;
         }
-        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_intake, m_Manipulator);
-        teleopCommands = new TeleopCommands(m_Elevator, m_intake, m_Manipulator, driverController);
+        autonCommands = new AutonCommands(robotDrive, m_Elevator, m_Intake, m_Manipulator);
+        teleopCommands = new TeleopCommands(m_Elevator, m_Intake, m_Manipulator, driverController);
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
