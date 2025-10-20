@@ -201,76 +201,78 @@ public class RobotContainer {
         String startCommandName = "";
 
         SequentialCommandGroup autoCommand = new SequentialCommandGroup();
-
-
-        switch ((int)startPos.get()) {
-            case 0: // U
-                startCommandName += "STT_";
-                break;
-            case 1: // M
-                startCommandName += "STM_";
-                break;
-            case 2: // B
-                startCommandName += "STB_";
-                break;
-            default:
-                startCommandName += "STM_";
-                break;
-        }
-
-        switch ((int)startReefPos.get()) {
-            case 0: // Reef RUp
-                startCommandName += "TRREEF";
-                break;
-            case 1: // Reef R
-                startCommandName += "RREEF";
-                break;
-            case 2: // Reef D
-                startCommandName += "BRREEF";
-                break;
-            default:
-                startCommandName += "RREEF";
-                break;
-        }
         
-        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
-        startCommandName = startCommandName.split("_")[1];
+        autoCommand.addCommands(autonCommands.followChoreoPath("STT_TRREEF"));
 
-        // switch ((int)sourcePref.get()) {
-        //     case 0: // Source T
-        //         startCommandName += "_ST";
+
+        // switch ((int)startPos.get()) {
+        //     case 0: // U
+        //         startCommandName += "STT_";
         //         break;
-        //     case 1: // Source B
-        //         startCommandName += "_SB";
+        //     case 1: // M
+        //         startCommandName += "STM_";
+        //         break;
+        //     case 2: // B
+        //         startCommandName += "STB_";
         //         break;
         //     default:
-        //         startCommandName += "_ST";
+        //         startCommandName += "STM_";
         //         break;
         // }
-        // autoCommand.addCommands(
-        //     autonCommands.runAutonIntakeSegment(startCommandName)
-        // );
 
+        // switch ((int)startReefPos.get()) {
+        //     case 0: // Reef RUp
+        //         startCommandName += "TRREEF";
+        //         break;
+        //     case 1: // Reef R
+        //         startCommandName += "RREEF";
+        //         break;
+        //     case 2: // Reef D
+        //         startCommandName += "BRREEF";
+        //         break;
+        //     default:
+        //         startCommandName += "RREEF";
+        //         break;
+        // }
+        
+        // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
         // startCommandName = startCommandName.split("_")[1];
 
-        // switch ((int)sourcePref.get()) {
-        //     case 0: // Source T
-        //         startCommandName += "_TLREEF";
-        //         break;
-        //     case 1: // Source B
-        //         startCommandName += "_BLREEF";
-        //         break;
-        //     default:
-        //         startCommandName += "_TRREEF";
-        //         break;
-        // }
+        // // switch ((int)sourcePref.get()) {
+        // //     case 0: // Source T
+        // //         startCommandName += "_ST";
+        // //         break;
+        // //     case 1: // Source B
+        // //         startCommandName += "_SB";
+        // //         break;
+        // //     default:
+        // //         startCommandName += "_ST";
+        // //         break;
+        // // }
+        // // autoCommand.addCommands(
+        // //     autonCommands.runAutonIntakeSegment(startCommandName)
+        // // );
 
-        // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
+        // // startCommandName = startCommandName.split("_")[1];
 
-        // for (int i = 0 ; i < 10; i++) {
-        //     startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
-        //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
-        // }
+        // // switch ((int)sourcePref.get()) {
+        // //     case 0: // Source T
+        // //         startCommandName += "_TLREEF";
+        // //         break;
+        // //     case 1: // Source B
+        // //         startCommandName += "_BLREEF";
+        // //         break;
+        // //     default:
+        // //         startCommandName += "_TRREEF";
+        // //         break;
+        // // }
+
+        // // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, startCommandName));
+
+        // // for (int i = 0 ; i < 10; i++) {
+        // //     startCommandName = startCommandName.split("_")[1] + "_" + startCommandName.split("_")[0];
+        // //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
+        // // }
 
         return autoCommand;
     }
