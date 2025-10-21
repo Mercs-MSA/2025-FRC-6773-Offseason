@@ -25,6 +25,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.drive.DriveConstants.ModuleHardwareConfig;
+import frc.robot.subsystems.drive.DriveConstants;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -78,7 +79,7 @@ public class ModuleIOKraken implements ModuleIO {
 
         driveConfig.Voltage.PeakForwardVoltage = kPeakVoltage;
         driveConfig.Voltage.PeakReverseVoltage = -kPeakVoltage;
-        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        driveConfig.MotorOutput.NeutralMode = DriveConstants.kNeutralVal;
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveConfig.Feedback.SensorToMechanismRatio = kDriveMotorGearing / kWheelCircumferenceMeters;

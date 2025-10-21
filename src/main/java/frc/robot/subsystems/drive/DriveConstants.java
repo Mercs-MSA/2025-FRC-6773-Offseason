@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -22,6 +23,7 @@ public class DriveConstants {
         new Translation2d(-kTrackWidthXMeters / 2.0, kTrackWidthYMeters / 2.0),
         new Translation2d(-kTrackWidthXMeters / 2.0, -kTrackWidthYMeters / 2.0)
       };
+
     public static final SwerveDriveKinematics kKinematics =
         new SwerveDriveKinematics(kModuleTranslations);
 
@@ -67,6 +69,7 @@ public class DriveConstants {
 
     public static final double kAzimuthStatorAmpLimit = 40.0;
     public static final double kAzimuthFOCAmpLimit = -30.0;
+    public static final NeutralModeValue kNeutralVal = NeutralModeValue.Brake; 
 
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
