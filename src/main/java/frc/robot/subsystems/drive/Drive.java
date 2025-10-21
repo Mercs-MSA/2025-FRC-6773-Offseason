@@ -199,6 +199,7 @@ public class Drive extends SubsystemBase{
             this::getPoseEstimate,
             this::getRobotChassisSpeeds, 
             (speeds, ff) -> {
+                speeds.omegaRadiansPerSecond *= -1;
                 ppDesiredSpeeds = speeds;
                 pathPlanningFF = ff;
             }, 

@@ -22,7 +22,7 @@ public class FieldConstants {
     public static final Pose2d DR = new Pose2d(5.801, 4.172, Rotation2d.fromDegrees(180.3));
     public static final Pose2d DM = new Pose2d(average(DL.getX(), DR.getX()), average(DL.getY(), DR.getY()), Rotation2d.fromDegrees(180.3));
     
-    public static final Pose2d EL = new Pose2d(5.334, 5.054, Rotation2d.fromDegrees(-120.0));
+    public static final Pose2d EL = new Pose2d(5.27, 5.11, Rotation2d.fromDegrees(-120.0));
     public static final Pose2d ER = new Pose2d(5.061, 5.208, Rotation2d.fromDegrees(-120.0));
     public static final Pose2d EM = new Pose2d(average(EL.getX(), ER.getX()), average(EL.getY(), ER.getY()), Rotation2d.fromDegrees(-120.0));
     

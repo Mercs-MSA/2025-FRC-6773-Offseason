@@ -202,9 +202,8 @@ public class RobotContainer {
 
         SequentialCommandGroup autoCommand = new SequentialCommandGroup();
         
-        autoCommand.addCommands(autonCommands.followChoreoPath("STT_TRREEF"));
-
-
+        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
+        autoCommand.addCommands(autonCommands.runAutonIntakeSegment("TRREEF_ST"));
         // switch ((int)startPos.get()) {
         //     case 0: // U
         //         startCommandName += "STT_";

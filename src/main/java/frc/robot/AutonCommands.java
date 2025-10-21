@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.units.TimeUnit;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -47,7 +50,7 @@ public class AutonCommands {
         double totalTimeSeconds = path.getIdealTrajectory(Drive.robotConfig).get().getTotalTimeSeconds();
         return 
             kRobotDrive.setDriveStateCommand(DriveState.AUTON).andThen(
-                kRobotDrive.customFollowPathCommand(path).withTimeout(totalTimeSeconds), 
+                kRobotDrive.customFollowPathCommand(path), 
                 kRobotDrive.setDriveStateCommand(DriveState.STOP));
     }
 
@@ -78,6 +81,15 @@ public class AutonCommands {
         });
     }
 
+    public Command elevatorDownCommand(){
+        return Commands.runOnce(() -> {
+            if (kElevator.getCurrentState() != ElevatorState.STOW) {
+                kElevator.setElevatorState(ElevatorState.STOW);
+                kElevator.setElevatorGoalWithState();
+            }
+        });
+    }
+
     public Command setElevatorStateCommand(ElevatorState state) {
         return Commands.runOnce(() -> kElevator.setElevatorState(state));
     }
@@ -92,13 +104,13 @@ public class AutonCommands {
         );
     }
 
-    public Command[] runAutonScoringSegment(ElevatorState elevatorLevel, String commandName) {
+    public Command[] runAutonScoringSegment(ElevatorState elevatorLevel, String commandName, SIDE side) {
         return new Command[]{
             setElevatorStateCommand(elevatorLevel),
             followChoreoPath(commandName),
             Commands.parallel(
                 elevatorUpCommand(),
-                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).onlyWhile(() -> !kRobotDrive.atGoal())),
+                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).onlyWhile(() -> !kRobotDrive.atGoal()))),
             kManipulator.outtakeCommand()
         };
     }
@@ -106,9 +118,14 @@ public class AutonCommands {
     public Command[] runAutonIntakeSegment(String commandName) {
         return new Command[]{
             Commands.sequence(
-                Commands.runOnce(() -> kManipulator.intake()), 
-                followChoreoPath(commandName),
-                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).onlyWhile(() -> !kRobotDrive.atGoal()))
+                Commands.parallel(
+                    elevatorDownCommand(),
+                    Commands.runOnce(() -> kManipulator.intake()), 
+                    followChoreoPath(commandName)
+                ),
+                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).onlyWhile(() -> !kRobotDrive.atGoal())),
+                Commands.waitUntil(() -> kManipulator.getCoralDetected()).withTimeout(3)
         };
     }
+
 }
