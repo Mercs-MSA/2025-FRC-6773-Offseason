@@ -331,14 +331,20 @@ public class RobotContainer {
                  .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
                  .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
+            operatorController.leftTrigger()
+                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT));
+ 
+             operatorController.rightTrigger()
+                 .onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT));
+
             driverController.leftStick()
-                .onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
+                //.onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
             driverController.rightStick()
-                .onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
+                //.onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
