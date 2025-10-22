@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
@@ -183,24 +184,27 @@ public class AutonCommands {
             followChoreoPath(commandName),
             Commands.parallel(
                 elevatorUpCommand(),
-                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))),
-            kRobotDrive.setDriveStateCommand(DriveState.AUTON),
-            kManipulator.outtakeCommand(),
-            Commands.waitUntil(() -> !kManipulator.getCoralDetected())
+                GoalPoseChooser.setSideCommand(side)
+                .andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL)
+                .onlyWhile(() -> !kRobotDrive.atGoal())
+                .withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))
+                .andThen(kManipulator.outtakeCommand()
+                .andThen(new WaitCommand(0.5)))),
         };
     }
 
     public Command[] runAutonScoringSegment(ElevatorState elevatorLevel, String commandName, SIDE side) {
         return new Command[]{
-                setElevatorStateCommand(elevatorLevel),
+            setElevatorStateCommand(elevatorLevel),
             followChoreoPath(commandName),
-            stowCommand(),
             Commands.parallel(
                 elevatorUpCommand(),
-                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))),
-            kRobotDrive.setDriveStateCommand(DriveState.AUTON),
-            kManipulator.outtakeCommand(),
-            Commands.waitUntil(() -> !kManipulator.getCoralDetected())
+                GoalPoseChooser.setSideCommand(side)
+                .andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL)
+                .onlyWhile(() -> !kRobotDrive.atGoal())
+                .withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))
+                .andThen(kManipulator.outtakeCommand()
+                .andThen(new WaitCommand(0.5)))),
         };
     }
 
@@ -208,13 +212,16 @@ public class AutonCommands {
         return new Command[]{
             Commands.sequence(
                 elevatorDownCommand(),
-                substationIntakeCommand().withTimeout(0.5),
                 followChoreoPath(commandName),
-                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).withDeadline(kRobotDrive.waitUnitllIntakeAutoAlignFinishes()).withTimeout(5),
-                kRobotDrive.setDriveStateCommand(DriveState.AUTON),
-                Commands.waitUntil(() -> kIntake.getCoralDetected())
+                Commands.parallel(
+                    substationIntakeCommand().withTimeout(1),
+                    kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE)
+                    .onlyWhile(() -> !kRobotDrive.atGoal())
+                )
             )
         };
     }
+
+    
 
 }

@@ -49,6 +49,7 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class RobotContainer {
     // Define subsystems
@@ -206,6 +207,27 @@ public class RobotContainer {
         autoCommand.addCommands(autonCommands.runAutonIntakeSegment("TRREEF_ST"));
         autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "ST_TLREEF", SIDE.LEFT));
 
+
+        SequentialCommandGroup leftThreePiece = new SequentialCommandGroup();
+        leftThreePiece.addCommands(autonCommands.substationIntakeCommand().withTimeout(0.5));
+        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
+        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_StartToI", SIDE.LEFT));
+        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_IToIntake"));
+        leftThreePiece.addCommands(new WaitCommand(1));
+        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
+        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToK", SIDE.LEFT));
+        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
+        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.RIGHT));
+        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToL", SIDE.RIGHT));
+        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
+
+
+
+
+
+
+        //autoChooser.addOption("3PieceTRREEF-Chicken-McNuggets", Commands.sequence(leftThreePiece));
+
         // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "ST_TLREEF", SIDE.LEFT));
 
         // switch ((int)startPos.get()) {
@@ -277,7 +299,7 @@ public class RobotContainer {
         // //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
         // // }
 
-        return autoCommand;
+        return leftThreePiece;
     }
 
     public void getAutonomousExit() {
