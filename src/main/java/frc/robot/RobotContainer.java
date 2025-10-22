@@ -202,8 +202,12 @@ public class RobotContainer {
 
         SequentialCommandGroup autoCommand = new SequentialCommandGroup();
         
-        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
+        autoCommand.addCommands(autonCommands.runAutonScoringSegmentFirst(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
         autoCommand.addCommands(autonCommands.runAutonIntakeSegment("TRREEF_ST"));
+        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "ST_TLREEF", SIDE.LEFT));
+
+        // autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "ST_TLREEF", SIDE.LEFT));
+
         // switch ((int)startPos.get()) {
         //     case 0: // U
         //         startCommandName += "STT_";

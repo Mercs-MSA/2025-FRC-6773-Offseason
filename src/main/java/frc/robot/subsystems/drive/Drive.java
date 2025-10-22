@@ -304,12 +304,12 @@ public class Drive extends SubsystemBase{
                 desiredSpeeds = teleopController.computeSniperPOVChassisSpeeds(getPoseEstimate().getRotation());
                 break;
             case DRIVE_TO_CORAL:
-                
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
                 desiredSpeeds.omegaRadiansPerSecond *= -1;
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
+                desiredSpeeds.omegaRadiansPerSecond *= -1;
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;

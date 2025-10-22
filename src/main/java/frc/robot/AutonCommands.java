@@ -9,6 +9,7 @@ import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drive;
@@ -16,8 +17,10 @@ import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.SIDE;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.manipulator.Manipulator;
 
 public class AutonCommands {
@@ -26,6 +29,10 @@ public class AutonCommands {
     public Intake kIntake;
     public Manipulator kManipulator;
     public Elevator kElevator;
+
+    private boolean stopRollers = false;
+    private boolean stopPivot = false;
+
 
     // public TeleopCommands(Elevator elevator, Intake intake, Manipulator manipulator, CommandXboxController controller) {
     //     kElevator = elevator;
@@ -94,6 +101,72 @@ public class AutonCommands {
         return Commands.runOnce(() -> kElevator.setElevatorState(state));
     }
 
+    public Command runRollerCommand() {
+        return Commands.run(() -> {
+            stopRollers = false;
+            if (!kManipulator.getCoralDetected()) { kIntake.runRollers(); } else { kIntake.stopRollers(); };
+        });
+    }
+
+    public Command stopRollerCommand() {
+        return setStopRollerStateCommand(true).andThen(Commands.runOnce(() -> kIntake.stop(true, false)));
+    }
+
+    private Command setStopPivotStateCommand(boolean stopPivotState) {
+        return Commands.runOnce(() -> stopPivot = stopPivotState);
+    }
+
+    private Command setStopRollerStateCommand(boolean stopRollerState) {
+        return Commands.runOnce(() -> stopRollers = stopRollerState);
+    }
+
+    public Command runManipulatorRollersCommand() {
+        return Commands.runOnce(() -> {
+            kManipulator.intake();
+        });
+    }
+
+    public Command stopManipulatorRollersCommand() {
+        return Commands.runOnce(() -> {
+            kManipulator.stop();
+        });
+    }
+
+    public Command runIntake() {
+        return Commands.parallel(
+
+            runRollerCommand(),
+            runManipulatorRollersCommand()
+        );
+    }
+
+    public Command runPivotAndHoldCommand(IntakePivotGoal pivotGoal) {
+        return Commands.startEnd(
+            () -> {
+                stopPivot = false;
+                kIntake.setPivotGoal(pivotGoal);
+            }, 
+            () -> {
+                stopPivot = false;
+                kIntake.setPivotPosition(kIntake.getPivotPosition());
+            }, 
+            kIntake);
+    }
+
+    public Command substationIntakeCommand() {
+        return Commands.parallel(
+            runPivotAndHoldCommand(IntakePivotGoal.kSubstationPickup),
+            new InstantCommand(()-> kElevator.setGoal(ElevatorGoal.kStow)),
+            runRollerCommand(),
+            runManipulatorRollersCommand()
+        );
+    }
+
+    public Command stowCommand() {
+        // return runPivotAndHoldCommand(kManipulator.getCoralDetected() ? IntakePivotGoal.kStow : IntakePivotGoal.kTransfer);
+        return Commands.parallel(runPivotAndHoldCommand(IntakePivotGoal.kStow), runRollerCommand());
+    }
+
     public Command elevatorAutoAlign(SIDE side)
     {
         return new ParallelCommandGroup(
@@ -104,27 +177,43 @@ public class AutonCommands {
         );
     }
 
-    public Command[] runAutonScoringSegment(ElevatorState elevatorLevel, String commandName, SIDE side) {
+    public Command[] runAutonScoringSegmentFirst(ElevatorState elevatorLevel, String commandName, SIDE side) {
         return new Command[]{
             setElevatorStateCommand(elevatorLevel),
             followChoreoPath(commandName),
             Commands.parallel(
                 elevatorUpCommand(),
-                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).onlyWhile(() -> !kRobotDrive.atGoal()))),
-            kManipulator.outtakeCommand()
+                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))),
+            kRobotDrive.setDriveStateCommand(DriveState.AUTON),
+            kManipulator.outtakeCommand(),
+            Commands.waitUntil(() -> !kManipulator.getCoralDetected())
+        };
+    }
+
+    public Command[] runAutonScoringSegment(ElevatorState elevatorLevel, String commandName, SIDE side) {
+        return new Command[]{
+                setElevatorStateCommand(elevatorLevel),
+            followChoreoPath(commandName),
+            stowCommand(),
+            Commands.parallel(
+                elevatorUpCommand(),
+                GoalPoseChooser.setSideCommand(side).andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))),
+            kRobotDrive.setDriveStateCommand(DriveState.AUTON),
+            kManipulator.outtakeCommand(),
+            Commands.waitUntil(() -> !kManipulator.getCoralDetected())
         };
     }
 
     public Command[] runAutonIntakeSegment(String commandName) {
         return new Command[]{
             Commands.sequence(
-                Commands.parallel(
-                    elevatorDownCommand(),
-                    Commands.runOnce(() -> kManipulator.intake()), 
-                    followChoreoPath(commandName)
-                ),
-                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).onlyWhile(() -> !kRobotDrive.atGoal())),
-                Commands.waitUntil(() -> kManipulator.getCoralDetected()).withTimeout(3)
+                elevatorDownCommand(),
+                substationIntakeCommand().withTimeout(0.5),
+                followChoreoPath(commandName),
+                kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).withDeadline(kRobotDrive.waitUnitllIntakeAutoAlignFinishes()).withTimeout(5),
+                kRobotDrive.setDriveStateCommand(DriveState.AUTON),
+                Commands.waitUntil(() -> kIntake.getCoralDetected())
+            )
         };
     }
 
