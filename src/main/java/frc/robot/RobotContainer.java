@@ -37,6 +37,7 @@ import frc.robot.subsystems.intake.IntakePivotIOTalonFX;
 import frc.robot.subsystems.intake.IntakeRollerIO;
 import frc.robot.subsystems.intake.IntakeRollerIOSim;
 import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
+import frc.robot.subsystems.intake.Intake.IntakePivotGoal;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorConstants;
 import frc.robot.subsystems.manipulator.ManipulatorIOTalonFX;
@@ -171,6 +172,8 @@ public class RobotContainer {
 
 
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
+        //m_Elevator.setDefaultCommand(Commands.run(() -> m_Elevator.setGoal(ElevatorGoal.kStow), m_Elevator));
+        //m_Intake.setDefaultCommand(Commands.run(()-> m_Intake.setPivotGoal(IntakePivotGoal.kStow), m_Intake));
 
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
@@ -211,7 +214,7 @@ public class RobotContainer {
         SequentialCommandGroup leftThreePiece = new SequentialCommandGroup();
         leftThreePiece.addCommands(autonCommands.substationIntakeCommand().withTimeout(0.5));
         //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
-        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_StartToI", SIDE.LEFT));
+        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
         leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_IToIntake"));
         leftThreePiece.addCommands(new WaitCommand(1));
         //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
