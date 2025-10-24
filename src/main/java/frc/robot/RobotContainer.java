@@ -401,6 +401,8 @@ public class RobotContainer {
             operatorController.a().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.L2));
             operatorController.x().onTrue(teleopCommands.setElevatorStateCommand(ElevatorState.STOW));
 
+            operatorController.povUp().onTrue(teleopCommands.elevatorEdgeCommand());
+
             operatorController.rightBumper().onTrue(teleopCommands.elevatorUpCommand());
 
             driverController.leftBumper()

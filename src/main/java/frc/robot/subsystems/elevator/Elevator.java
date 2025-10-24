@@ -37,6 +37,8 @@ public class Elevator extends SubsystemBase {
     kStow(() -> Units.inchesToMeters(0.5)),
     /** Position for intaking from the coral station */
     kIntake(() -> Units.inchesToMeters(0.0)),
+
+    kEdgeCase(() -> Units.inchesToMeters(5.0)),
     /** Custom setpoint that can be modified over network tables; Usefu for debugging */
     custom(new LoggedTunableNumber("Elevator/Custom", Units.inchesToMeters(8.0)));
 

@@ -184,6 +184,10 @@ public class TeleopCommands {
         });
     }
 
+    public Command elevatorEdgeCommand(){
+        return new InstantCommand(() -> kElevator.setGoal(ElevatorGoal.kEdgeCase));
+    }
+
 
     public Command toggleRollerCommand() {
         return Commands.runOnce(() -> {
