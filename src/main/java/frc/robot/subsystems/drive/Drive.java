@@ -541,6 +541,10 @@ public class Drive extends SubsystemBase{
         return GoalPoseChooser.setSideCommand(side);
     }
 
+    public Pose2d getGoalPose() {
+        return goalPose;
+    }
+
     /** Adds a new timestamped vision measurement. */
     public void addVisionMeasurement(
         Pose2d visionRobotPoseMeters,

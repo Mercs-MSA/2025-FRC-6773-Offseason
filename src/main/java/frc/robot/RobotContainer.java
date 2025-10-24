@@ -3,10 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -88,6 +90,13 @@ public class RobotContainer {
     private LoggedTunableNumber startReefPos = new LoggedTunableNumber("Auton/StartReefPos (0 = Reef RUp, 1 = Reef R, 2 = Reef D)", 1);
     private LoggedTunableNumber sourcePref = new LoggedTunableNumber("Auton/SourcePref (0 = Source T, 1 = Source B)", 1);
     
+    public Field2d goalPoseField = new Field2d();
+    public Field2d currPoseField = new Field2d();
+
+    public Pose2d getCurrPose() {
+        return robotDrive.getPoseEstimate();
+    }
+
     public RobotContainer() {
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
@@ -360,7 +369,7 @@ public class RobotContainer {
             driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
 
             driverController.x()
-                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE))
+                 .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE).andThen(Commands.runOnce(() -> goalPoseField.setRobotPose(robotDrive.getGoalPose()))))
                  .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
             operatorController.leftTrigger()
@@ -371,13 +380,13 @@ public class RobotContainer {
 
             driverController.leftStick()
                 //.onTrue(GoalPoseChooser.setSideCommand(SIDE.LEFT))
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).andThen(Commands.runOnce(() -> goalPoseField.setRobotPose(robotDrive.getGoalPose()))))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
 
             driverController.rightStick()
                 //.onTrue(GoalPoseChooser.setSideCommand(SIDE.RIGHT))
-                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL))
+                .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL).andThen(Commands.runOnce(() -> goalPoseField.setRobotPose(robotDrive.getGoalPose()))))
                 .onTrue(teleopCommands.elevatorUpCommand())
                 .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
            
