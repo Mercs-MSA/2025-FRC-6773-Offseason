@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -70,7 +71,7 @@ public class RobotContainer {
     
     // Define other utility classes
     
-    private LoggedDashboardChooser<Command> autoChooser;
+    private LoggedDashboardChooser<String> autoChooser;
     
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -84,7 +85,6 @@ public class RobotContainer {
     private final EventLoop teleopLoop = new EventLoop();
     private final AutonCommands autonCommands;
     private final TeleopCommands teleopCommands;
-
 
     private LoggedTunableNumber startPos = new LoggedTunableNumber("Auton/StartPos (0 = U, 1 = M, 2 = B)", 1);
     private LoggedTunableNumber startReefPos = new LoggedTunableNumber("Auton/StartReefPos (0 = Reef RUp, 1 = Reef R, 2 = Reef D)", 1);
@@ -180,7 +180,7 @@ public class RobotContainer {
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
-
+        createAutos();
 
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
         //m_Elevator.setDefaultCommand(Commands.run(() -> m_Elevator.setGoal(ElevatorGoal.kStow), m_Elevator));
@@ -216,29 +216,22 @@ public class RobotContainer {
         );
     }
 
+    public void createAutos() {
+        autoChooser = new LoggedDashboardChooser<String>("Autonomous/chooser");
+
+        // Add autos to chooser
+        autoChooser.addOption("LEFT", "LEFT");
+        autoChooser.addOption("RIGHT", "RIGHT");
+        autoChooser.addOption("CENTER", "CENTER");
+        autoChooser.addOption("NOTHING", "NOTHING");
+
+
+        SmartDashboard.putData("Autonomous/AutoChooser", autoChooser.getSendableChooser());
+    }
+
     public Command getAutonomousCommand() {
-        String startCommandName = "";
-
-        SequentialCommandGroup autoCommand = new SequentialCommandGroup();
-        
-        autoCommand.addCommands(autonCommands.runAutonScoringSegmentFirst(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
-        autoCommand.addCommands(autonCommands.runAutonIntakeSegment("TRREEF_ST"));
-        autoCommand.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "ST_TLREEF", SIDE.LEFT));
 
 
-        SequentialCommandGroup leftThreePiece = new SequentialCommandGroup();
-        leftThreePiece.addCommands(autonCommands.substationIntakeCommand().withTimeout(0.5));
-        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
-        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
-        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_IToIntake"));
-        leftThreePiece.addCommands(new WaitCommand(1.0));
-        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
-        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToK", SIDE.LEFT));
-        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
-        leftThreePiece.addCommands(new WaitCommand(1.0));
-        //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.RIGHT));
-        leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToL", SIDE.RIGHT));
-        leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
 
 
 
@@ -318,7 +311,7 @@ public class RobotContainer {
         // //     autoCommand.addCommands(autonCommands.followChoreoPath(startCommandName));
         // // }
 
-        return leftThreePiece;
+        return autonCommands.getAutonomousChosen(autoChooser.get());
     }
 
     public void getAutonomousExit() {
