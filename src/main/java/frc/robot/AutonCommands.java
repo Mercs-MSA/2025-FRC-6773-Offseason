@@ -156,7 +156,7 @@ public class AutonCommands {
 
     public Command substationIntakeCommand() {
         return Commands.parallel(
-            runPivotAndHoldCommand(IntakePivotGoal.kStow),
+            runPivotAndHoldCommand(IntakePivotGoal.kSubstationPickup),
             new InstantCommand(()-> kElevator.setGoal(ElevatorGoal.kStow)),
             runRollerCommand(),
             runManipulatorRollersCommand()
@@ -203,7 +203,8 @@ public class AutonCommands {
                 GoalPoseChooser.setSideCommand(side)
                 .andThen(kRobotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_CORAL)
                 .onlyWhile(() -> !kRobotDrive.atGoal())
-                .withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes()))
+                //.withDeadline(kRobotDrive.waitUnitllAutoAlignFinishes())
+                )
                 .andThen(kManipulator.outtakeCommand()
                 .andThen(new WaitCommand(0.5)))),
         };

@@ -55,8 +55,9 @@ public class Robot extends LoggedRobot {
         }
 
         SignalLogger.setPath("/U/logs");
-        SignalLogger.enableAutoLogging(false);
-        SignalLogger.stop();
+        SignalLogger.enableAutoLogging(true);
+        SignalLogger.start();
+        //SignalLogger.stop();
 
         switch (Constants.kCurrentMode) {
             case REAL:

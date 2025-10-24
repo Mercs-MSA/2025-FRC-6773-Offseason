@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -104,6 +105,7 @@ public class RobotContainer {
 
                 m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
+                    new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
                 });
 
                 robotDrive.setVision(m_Vision);
@@ -176,9 +178,13 @@ public class RobotContainer {
         //m_Intake.setDefaultCommand(Commands.run(()-> m_Intake.setPivotGoal(IntakePivotGoal.kStow), m_Intake));
 
         // Pass subsystems to classes that need them for configuration
+
+        SlewRateLimiter slewFilterX = new SlewRateLimiter(0.7);
+        SlewRateLimiter slewFilterY = new SlewRateLimiter(0.7);
+
         robotDrive.acceptJoystickInputs(
-            () -> - driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()),
             () -> driverController.getRightX(),
             () -> driverController.getHID().getPOV());
 
@@ -216,10 +222,11 @@ public class RobotContainer {
         //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
         leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
         leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_IToIntake"));
-        leftThreePiece.addCommands(new WaitCommand(1));
+        leftThreePiece.addCommands(new WaitCommand(1.0));
         //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.LEFT));
         leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToK", SIDE.LEFT));
         leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
+        leftThreePiece.addCommands(new WaitCommand(1.0));
         //leftThreePiece.addCommands(autonCommands.setSideCommand(SIDE.RIGHT));
         leftThreePiece.addCommands(autonCommands.runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToL", SIDE.RIGHT));
         leftThreePiece.addCommands(autonCommands.runAutonIntakeSegment("3PC_Left_KToIntake"));
@@ -387,7 +394,15 @@ public class RobotContainer {
 
             operatorController.rightBumper().onTrue(teleopCommands.elevatorUpCommand());
 
-            driverController.leftBumper().onTrue(teleopCommands.substationIntakeCommand()).whileFalse(teleopCommands.stowCommand());
+            driverController.leftBumper()
+            .onTrue(teleopCommands.substationIntakeCommand())
+            .whileFalse(teleopCommands.stowCommand());
+
+            driverController.leftBumper()
+            .onTrue(robotDrive.setDriveStateCommandContinued(DriveState.DRIVE_TO_INTAKE)
+            .onlyWhile(() -> !robotDrive.atGoal()))
+            .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
+
         } 
 
         else {

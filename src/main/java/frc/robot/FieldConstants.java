@@ -10,24 +10,24 @@ public class FieldConstants {
     public static final Pose2d AR = new Pose2d(3.162, 3.872, Rotation2d.fromDegrees(0.0));
     public static final Pose2d AM = new Pose2d(average(AL.getX(), AR.getX()), average(AL.getY(), AR.getY()), Rotation2d.fromDegrees(0.0));
     
-    public static final Pose2d BL = new Pose2d(3.501, 2.998, Rotation2d.fromDegrees(60.0));
-    public static final Pose2d BR = new Pose2d(3.906, 2.831, Rotation2d.fromDegrees(60.0));
+    public static final Pose2d BL = new Pose2d(3.69, 2.97, Rotation2d.fromDegrees(60.0));
+    public static final Pose2d BR = new Pose2d(4.02, 2.79, Rotation2d.fromDegrees(60.0));
     public static final Pose2d BM = new Pose2d(average(BL.getX(), BR.getX()), average(BL.getY(), BR.getY()), Rotation2d.fromDegrees(60.0));
     
-    public static final Pose2d CL = new Pose2d(4.774, 2.693, Rotation2d.fromDegrees(120.0));
-    public static final Pose2d CR = new Pose2d(5.097, 2.919, Rotation2d.fromDegrees(120.0));
+    public static final Pose2d CL = new Pose2d(4.99, 2.81, Rotation2d.fromDegrees(120.0));
+    public static final Pose2d CR = new Pose2d(5.3, 2.96, Rotation2d.fromDegrees(120.0));
     public static final Pose2d CM = new Pose2d(average(CL.getX(), CR.getX()), average(CL.getY(), CR.getY()), Rotation2d.fromDegrees(120.0));
     
-    public static final Pose2d DL = new Pose2d(5.801, 3.822, Rotation2d.fromDegrees(180.3));
-    public static final Pose2d DR = new Pose2d(5.801, 4.172, Rotation2d.fromDegrees(180.3));
+    public static final Pose2d DL = new Pose2d(5.81, 3.86, Rotation2d.fromDegrees(180.3));
+    public static final Pose2d DR = new Pose2d(5.81, 4.18, Rotation2d.fromDegrees(180.3));
     public static final Pose2d DM = new Pose2d(average(DL.getX(), DR.getX()), average(DL.getY(), DR.getY()), Rotation2d.fromDegrees(180.3));
     
     public static final Pose2d EL = new Pose2d(5.27, 5.11, Rotation2d.fromDegrees(-120.0));
-    public static final Pose2d ER = new Pose2d(5.061, 5.208, Rotation2d.fromDegrees(-120.0));
+    public static final Pose2d ER = new Pose2d(4.93, 5.21, Rotation2d.fromDegrees(-120.0));
     public static final Pose2d EM = new Pose2d(average(EL.getX(), ER.getX()), average(EL.getY(), ER.getY()), Rotation2d.fromDegrees(-120.0));
     
     public static final Pose2d FL = new Pose2d(4.012, 5.250, Rotation2d.fromDegrees(-60.0)); //y
-    public static final Pose2d FR = new Pose2d(3.733, 5.112, Rotation2d.fromDegrees(-60.0)); //y
+    public static final Pose2d FR = new Pose2d(3.65, 5.02, Rotation2d.fromDegrees(-60.0)); //y
     public static final Pose2d FM = new Pose2d(average(FL.getX(), FR.getX()), average(FL.getY(), FR.getY()), Rotation2d.fromDegrees(-60.0));
 
     public static final Pose2d AD = new Pose2d(3.12, 4.386, Rotation2d.fromDegrees(0.0));          // reefABDescore

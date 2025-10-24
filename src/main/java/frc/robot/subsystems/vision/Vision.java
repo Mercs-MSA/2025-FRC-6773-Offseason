@@ -91,7 +91,9 @@ public class Vision {
         }
 
         avgDistMeters /= numberOfTargets;
+        Logger.recordOutput("Vision/AvgDistMeters", avgDistMeters);
         double xyScalar = Math.pow(avgDistMeters, 2) / numberOfTargets;
+        Logger.recordOutput("Vision/xyScalar", xyScalar);
 
         // Case: single far-away tag → not reliable
         if (numberOfTargets == 1 && avgDistMeters > 5.5) {
