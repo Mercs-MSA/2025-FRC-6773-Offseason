@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.signals.AppliedRotorPolarityValue;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drive;
@@ -224,6 +226,49 @@ public class AutonCommands {
         };
     }
 
-    
+    public Command getAutonomousChosen(String startChoice) {
+        SequentialCommandGroup autonCommand = new SequentialCommandGroup();
+
+        switch (startChoice)
+        {
+            case "CENTER":
+                //autonCommand.addCommands(setSideCommand(SIDE.LEFT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "STM_RREEF", SIDE.LEFT));
+                break;
+            case "RIGHT":
+                autonCommand.addCommands(substationIntakeCommand().withTimeout(0.5));
+                //autonCommand.addCommands(setSideCommand(SIDE.LEFT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "STB_BRREEF", SIDE.LEFT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Right_IToIntake"));
+                autonCommand.addCommands(new WaitCommand(1.0));
+                //autonCommand.addCommands(setSideCommand(SIDE.LEFT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "3PC_Right_IntakeToK", SIDE.LEFT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Right_KToIntake"));
+                autonCommand.addCommands(new WaitCommand(1.0));
+                //autonCommand.addCommands(setSideCommand(SIDE.RIGHT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "3PC_Right_IntakeToL", SIDE.RIGHT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Right_KToIntake"));
+                break;
+            case "LEFT":
+                autonCommand.addCommands(substationIntakeCommand().withTimeout(0.5));
+                //autonCommand.addCommands(setSideCommand(SIDE.LEFT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "STT_TRREEF", SIDE.LEFT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Left_IToIntake"));
+                autonCommand.addCommands(new WaitCommand(1.0));
+                //autonCommand.addCommands(setSideCommand(SIDE.LEFT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToK", SIDE.LEFT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Left_KToIntake"));
+                autonCommand.addCommands(new WaitCommand(1.0));
+                //autonCommand.addCommands(setSideCommand(SIDE.RIGHT));
+                autonCommand.addCommands(runAutonScoringSegment(ElevatorState.L4, "3PC_Left_IntakeToL", SIDE.RIGHT));
+                autonCommand.addCommands(runAutonIntakeSegment("3PC_Left_KToIntake"));
+                break;
+            default:
+                // Do nothing auton
+                break;
+        }
+
+        return autonCommand;
+    }
 
 }
