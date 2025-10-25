@@ -73,6 +73,8 @@ public class RobotContainer {
     // Define other utility classes
     
     private LoggedDashboardChooser<String> autoChooser;
+    private LoggedDashboardChooser<Double> accelerationChooser;
+
     
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -99,6 +101,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+    
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
@@ -183,20 +186,21 @@ public class RobotContainer {
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
         createAutos();
-
+        accelerationChooser = new LoggedDashboardChooser<Double>("Teleop/Acceleration Chooser");
+        accelerationChooser.addOption("A.B. (0.1)", 0.1);
+        accelerationChooser.addOption("SNAIL", 0.5);
+        accelerationChooser.addOption("SLOW", 0.7);
+        accelerationChooser.addOption("NORMAL", 1.0);
+        
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
         //m_Elevator.setDefaultCommand(Commands.run(() -> m_Elevator.setGoal(ElevatorGoal.kStow), m_Elevator));
         //m_Intake.setDefaultCommand(Commands.run(()-> m_Intake.setPivotGoal(IntakePivotGoal.kStow), m_Intake));
 
         // Pass subsystems to classes that need them for configuration
-
-        SlewRateLimiter slewFilterX = new SlewRateLimiter(0.7);
-        SlewRateLimiter slewFilterY = new SlewRateLimiter(0.7);
-
         robotDrive.acceptJoystickInputs(
-            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()),
-            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()),
-            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0),
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
+            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * accelerationChooser.get(),
             () -> driverController.getHID().getPOV());
 
 
