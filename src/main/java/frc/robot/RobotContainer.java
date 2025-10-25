@@ -73,7 +73,7 @@ public class RobotContainer {
     // Define other utility classes
     
     private LoggedDashboardChooser<String> autoChooser;
-    private LoggedDashboardChooser<Double> accelerationChooser;
+    private LoggedDashboardChooser<Double> speedChooser;
 
     
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -186,12 +186,11 @@ public class RobotContainer {
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
         createAutos();
-        accelerationChooser = new LoggedDashboardChooser<Double>("Teleop/Acceleration Chooser");
-        accelerationChooser.addDefaultOption("Normal", 1.0);
-        accelerationChooser.addOption("A.B. (0.1)", 0.1);
-        accelerationChooser.addOption("SNAIL", 0.5);
-        accelerationChooser.addOption("SLOW", 0.7);
-        accelerationChooser.addOption("NORMAL", 1.0);
+        speedChooser = new LoggedDashboardChooser<Double>("Teleop/Acceleration Chooser");
+        speedChooser.addDefaultOption("NORMAL", 1.0);
+        // accelerationChooser.addOption("A.B. (0.1)", 0.1);
+        // accelerationChooser.addOption("SNAIL", 0.5);
+        speedChooser.addOption("SLOW", 0.7);
         
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
         //m_Elevator.setDefaultCommand(Commands.run(() -> m_Elevator.setGoal(ElevatorGoal.kStow), m_Elevator));
@@ -199,9 +198,9 @@ public class RobotContainer {
 
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
-            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
-            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
-            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * accelerationChooser.get().doubleValue(),
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * speedChooser.get(),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * speedChooser.get(),
+            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * speedChooser.get().doubleValue(),
             () -> driverController.getHID().getPOV());
 
 
