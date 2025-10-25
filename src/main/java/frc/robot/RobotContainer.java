@@ -187,6 +187,7 @@ public class RobotContainer {
         // ex: LEDs = new LEDSubsystem();
         createAutos();
         accelerationChooser = new LoggedDashboardChooser<Double>("Teleop/Acceleration Chooser");
+        accelerationChooser.addDefaultOption("Normal", 1.0);
         accelerationChooser.addOption("A.B. (0.1)", 0.1);
         accelerationChooser.addOption("SNAIL", 0.5);
         accelerationChooser.addOption("SLOW", 0.7);
@@ -200,7 +201,7 @@ public class RobotContainer {
         robotDrive.acceptJoystickInputs(
             () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
             () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
-            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * accelerationChooser.get(),
+            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * accelerationChooser.get().doubleValue(),
             () -> driverController.getHID().getPOV());
 
 

@@ -115,21 +115,12 @@ public class ManualTeleopController {
     }
 
     private double getElevatorSpeedScalar(Elevator elevator) {
-        elevatorHeight = elevator.getPositionMeters();
-
-    
-          
-        double maxHeight = Units.inchesToMeters(63.0); 
-        
-        double clampedHeight = MathUtil.clamp(elevatorHeight, 0.0, maxHeight);
-        
-        if (clampedHeight < 0.1) {
-            return 1.0; // No reduction at very low heights
-        } else if (clampedHeight > maxHeight - 0.1) {
-            return 0.2; // Maximum reduction at maximum height
+        if (elevator.getGoal() == ElevatorGoal.kL4Coral) {
+            return 0.2; 
+        } else if (elevator.getGoal() == ElevatorGoal.kL3Coral) {
+            return 0.2; 
         } else {
-            // Linear interpolation between 1.0 and 0.5 based on height
-            return 1.0 - (0.5 * (clampedHeight / maxHeight));
+            return 1.0;
         }
     }
 
