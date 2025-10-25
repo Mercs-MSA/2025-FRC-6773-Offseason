@@ -37,11 +37,11 @@ public class FieldConstants {
     public static final Pose2d ED = new Pose2d(5.456, 5.034, Rotation2d.fromDegrees(-120.0));       // reefIJDescore
     public static final Pose2d FD = new Pose2d(4.107, 5.391, Rotation2d.fromDegrees(-60.0));        // reefKLDescore
 
-    public static final Pose2d B_IL = new Pose2d(1.07, 7.06, Rotation2d.fromDegrees(-53.0)); // SourceLeft
+    public static final Pose2d B_IL = new Pose2d(1.07, 7.06, Rotation2d.fromDegrees(-55.0)); // SourceLeft
     public static final Pose2d B_IR = new Pose2d(1.0103, 0.926, Rotation2d.fromDegrees(55.0));
 
-    public static final Pose2d R_IL = new Pose2d(1.103, 0.926, Rotation2d.fromDegrees(-55.0)); // SourceLeft
-    public static final Pose2d R_IR = new Pose2d(1.0103, 7.1, Rotation2d.fromDegrees(55.0));
+    public static final Pose2d R_IL = new Pose2d(16.08, 0.78, Rotation2d.fromDegrees(-55.0+180)); // SourceLeft
+    public static final Pose2d R_IR = new Pose2d(16.45, 7.01, Rotation2d.fromDegrees(55.0+180));
 
 
 

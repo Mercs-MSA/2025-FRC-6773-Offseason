@@ -3,7 +3,10 @@ package frc.robot.subsystems.drive.controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
 import static frc.robot.subsystems.drive.DriveConstants.kMaxLinearSpeedMPS;
@@ -35,6 +38,8 @@ public class ManualTeleopController {
     private DoubleSupplier xSupplier;
     private DoubleSupplier ySupplier;
     private DoubleSupplier omegaSupplier;
+    private double elevatorHeight;
+
 
     private DoubleSupplier povSupplierDegrees;
 
@@ -49,7 +54,7 @@ public class ManualTeleopController {
         this.povSupplierDegrees = povSupplierDegrees;
     }
 
-    public ChassisSpeeds computeChassiSpeeds(Rotation2d robotAngle, ChassisSpeeds currentRobotRelativeSpeeds, boolean joystickSniper) {
+    public ChassisSpeeds computeChassiSpeeds(Rotation2d robotAngle, ChassisSpeeds currentRobotRelativeSpeeds, boolean joystickSniper, Elevator elevator) {
         double xAdjustedJoystickInput = MathUtil.applyDeadband(xSupplier.getAsDouble(), linearDeadBand.get());
         double yAdjustedJoystickInput = MathUtil.applyDeadband(ySupplier.getAsDouble(), linearDeadBand.get());
         double omegaAdjustedJoystickInput = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), rotationDeadband.get());
@@ -97,8 +102,8 @@ public class ManualTeleopController {
         // Logger.recordOutput("Drive/Teleop/offsetAngle", robotAngle);
 
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds( 
-            DriveConstants.kMaxLinearSpeedMPS * xScaledJoystickInput, 
-            DriveConstants.kMaxLinearSpeedMPS * yScaledJoystickInput, 
+            (DriveConstants.kMaxLinearSpeedMPS * xScaledJoystickInput) * getElevatorSpeedScalar(elevator),
+            (DriveConstants.kMaxLinearSpeedMPS * yScaledJoystickInput) * getElevatorSpeedScalar(elevator),
             DriveConstants.kMaxRotationSpeedRadiansPS * omegaJoystickInput);
 
         if (fieldRelative) {
@@ -107,6 +112,25 @@ public class ManualTeleopController {
         }
 
         return desiredSpeeds;
+    }
+
+    private double getElevatorSpeedScalar(Elevator elevator) {
+        elevatorHeight = elevator.getPositionMeters();
+
+    
+          
+        double maxHeight = Units.inchesToMeters(63.0); 
+        
+        double clampedHeight = MathUtil.clamp(elevatorHeight, 0.0, maxHeight);
+        
+        if (clampedHeight < 0.1) {
+            return 1.0; // No reduction at very low heights
+        } else if (clampedHeight > maxHeight - 0.1) {
+            return 0.2; // Maximum reduction at maximum height
+        } else {
+            // Linear interpolation between 1.0 and 0.5 based on height
+            return 1.0 - (0.5 * (clampedHeight / maxHeight));
+        }
     }
 
     /* Wheter to use the snipler scalar or not based on the cnodition */
