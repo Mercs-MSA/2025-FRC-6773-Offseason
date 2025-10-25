@@ -197,16 +197,10 @@ public class RobotContainer {
         //m_Intake.setDefaultCommand(Commands.run(()-> m_Intake.setPivotGoal(IntakePivotGoal.kStow), m_Intake));
 
         // Pass subsystems to classes that need them for configuration
-
-        SlewRateLimiter slewFilterX = new SlewRateLimiter(0.7);
-        SlewRateLimiter slewFilterY = new SlewRateLimiter(0.7);
-
-        double speedScalar = accelerationChooser.get();
-
         robotDrive.acceptJoystickInputs(
-            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * speedScalar,
-            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * speedScalar,
-            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * speedScalar,
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
+            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * accelerationChooser.get(),
             () -> driverController.getHID().getPOV());
 
 
