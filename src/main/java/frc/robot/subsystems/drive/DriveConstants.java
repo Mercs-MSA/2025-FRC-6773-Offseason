@@ -76,8 +76,8 @@ public class DriveConstants {
             new PIDController(70, 0.0, 0.0), new SimpleMotorFeedforward(2.25, 0.0, 1.0),
             new PIDController(100, 0.0, 0.3), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
-            new PIDController(0.01, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.36, 0.005), 
-            new PIDController(0.01, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
+            new PIDController(0.1, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.36, 0.005), 
+            new PIDController(4.5, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
 
 
     /* MODULE SPECIFIC CONSTANTS */

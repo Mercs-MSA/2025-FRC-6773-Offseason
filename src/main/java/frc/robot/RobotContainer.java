@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -142,6 +143,7 @@ public class RobotContainer {
 
                 m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
+                    new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
                 });
                 robotDrive.setVision(m_Vision);
 
@@ -194,7 +196,7 @@ public class RobotContainer {
         robotDrive.acceptJoystickInputs(
             () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()),
             () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()),
-            () -> driverController.getRightX(),
+            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0),
             () -> driverController.getHID().getPOV());
 
 

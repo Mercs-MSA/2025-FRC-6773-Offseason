@@ -40,7 +40,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.drive.controllers.HeadingController;
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser;
 import frc.robot.subsystems.drive.controllers.GoalPoseChooser.CHOOSER_STRATEGY;
@@ -305,11 +307,11 @@ public class Drive extends SubsystemBase{
                 break;
             case DRIVE_TO_CORAL:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1;
+                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1;
+                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;
