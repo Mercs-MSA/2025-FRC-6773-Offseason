@@ -313,11 +313,11 @@ public class Drive extends SubsystemBase{
                 break;
             case DRIVE_TO_CORAL:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1;// * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
+                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1;// * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
+                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;

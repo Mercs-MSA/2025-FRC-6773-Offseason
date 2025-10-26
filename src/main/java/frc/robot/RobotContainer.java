@@ -204,9 +204,9 @@ public class RobotContainer {
 
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
-            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
-            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
-            () -> driverController.getRightX() * accelerationChooser.get().doubleValue(),
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * speedChooser.get(),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * speedChooser.get(),
+            () -> driverController.getRightX() * speedChooser.get().doubleValue(),
             () -> driverController.getHID().getPOV());
 
 
@@ -444,5 +444,12 @@ public class RobotContainer {
         }
     }
 
+    public void setDriveBrakeMode() {
+        robotDrive.setBrakeMode(bChooser.get());
+    }
+
+    public void setGyroInit() {
+        robotDrive.resetGyro();
+    }
     
 }
