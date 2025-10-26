@@ -54,6 +54,9 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -74,7 +77,7 @@ public class RobotContainer {
     
     private LoggedDashboardChooser<String> autoChooser;
     private LoggedDashboardChooser<Double> speedChooser;
-
+    private LoggedDashboardChooser<NeutralModeValue> bChooser;
     
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -101,7 +104,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-    
+        
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
@@ -118,7 +121,7 @@ public class RobotContainer {
 
                 m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
-                    new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
+                    // new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
                 });
 
                 robotDrive.setVision(m_Vision);
@@ -146,7 +149,7 @@ public class RobotContainer {
 
                 m_Vision = new Vision(new CameraIO[]{
                     new VisionIOLimelight(VisionConstants.camera0Name, () -> robotDrive.getRobotRotation()),
-                    new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
+                    // new VisionIOLimelight(VisionConstants.camera1Name, () -> robotDrive.getRobotRotation()),
                 });
                 robotDrive.setVision(m_Vision);
 
@@ -188,10 +191,13 @@ public class RobotContainer {
         createAutos();
         speedChooser = new LoggedDashboardChooser<Double>("Teleop/Acceleration Chooser");
         speedChooser.addDefaultOption("NORMAL", 1.0);
-        // accelerationChooser.addOption("A.B. (0.1)", 0.1);
-        // accelerationChooser.addOption("SNAIL", 0.5);
         speedChooser.addOption("SLOW", 0.7);
         
+        bChooser = new LoggedDashboardChooser<NeutralModeValue>("Drive/BrakeModeChooser");
+        bChooser.addDefaultOption("BRAKE", NeutralModeValue.Brake);
+        bChooser.addOption("COAST", NeutralModeValue.Coast);
+
+
         robotDrive.setDefaultCommand(Commands.run(() -> robotDrive.setDriveState(DriveState.TELEOP), robotDrive));
         //m_Elevator.setDefaultCommand(Commands.run(() -> m_Elevator.setGoal(ElevatorGoal.kStow), m_Elevator));
         //m_Intake.setDefaultCommand(Commands.run(()-> m_Intake.setPivotGoal(IntakePivotGoal.kStow), m_Intake));
@@ -436,6 +442,10 @@ public class RobotContainer {
         } else if(!m_Intake.getCoralDetected()){
             m_Intake.setBrakeMode(true);
         }
+    }
+
+    public void setDriveBrakeMode() {
+        robotDrive.setBrakeMode(bChooser.get());
     }
 
     

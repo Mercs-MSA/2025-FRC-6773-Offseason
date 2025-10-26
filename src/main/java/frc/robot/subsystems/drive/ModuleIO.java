@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public interface ModuleIO {
     @AutoLog
     public static class ModuleInputs {
@@ -48,4 +50,7 @@ public interface ModuleIO {
     public default void resetAzimuthEncoder() {}
 
     public default void setAzimuthPID(double kP, double kI, double kD) {}
+
+    public default void setNeutralMode(NeutralModeValue neutralMode) {
+    }
 }

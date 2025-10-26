@@ -6,6 +6,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import static frc.robot.subsystems.drive.DriveConstants.kModuleControllerConfigs;
 
 public class Module {
@@ -212,5 +215,10 @@ public class Module {
     /* Resets azimuth encoder from CANCoder */
     public void resetAzimuthEncoder() {
         io.resetAzimuthEncoder();
+    }
+
+    public void setNeutralMode(NeutralModeValue mode)
+    {
+        io.setNeutralMode(mode);
     }
 }

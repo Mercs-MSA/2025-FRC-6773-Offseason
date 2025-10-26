@@ -6,6 +6,7 @@ import static frc.robot.FieldConstants.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
@@ -63,11 +64,15 @@ import frc.robot.utils.swerve.SwerveUtils;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /* 
  * This code is a swerve drivebase 
  * Main logic is handled in periodic() function
  */
+
+
+
 public class Drive extends SubsystemBase{
     public static enum DriveState {
         // TELEOP AND AUTON CONTROLS
@@ -96,6 +101,7 @@ public class Drive extends SubsystemBase{
     private Vision vision = null;
     private Elevator elevator;
 
+    private NeutralModeValue swerveNeutralMode = NeutralModeValue.Coast;
 
     /* LOCALIZATION(tracks position and orientation of robot) */
     private Rotation2d robotRotation;
@@ -201,7 +207,7 @@ public class Drive extends SubsystemBase{
             this::getPoseEstimate,
             this::getRobotChassisSpeeds, 
             (speeds, ff) -> {
-                speeds.omegaRadiansPerSecond *= -1;
+                speeds.omegaRadiansPerSecond *= 1;
                 ppDesiredSpeeds = speeds;
                 pathPlanningFF = ff;
             }, 
@@ -435,6 +441,14 @@ public class Drive extends SubsystemBase{
         // }
     }
 
+    public void setBrakeMode(NeutralModeValue mode) {
+        
+        for(Module module : modules) {
+            module.setNeutralMode(mode);
+        }
+        
+    }
+
     ////////////// CHASSIS SPEED TO MODULES \\\\\\\\\\\\\\\\
     /* Sets the desired swerve module states to the robot */
     public void runSwerve(ChassisSpeeds speeds) {
@@ -530,7 +544,7 @@ public class Drive extends SubsystemBase{
     public void resetGyro() {
         /* Robot is usually facing the other way(relative to field) when doing cycles on red side, so gyro is reset to 180 */
         robotRotation = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Red) ? 
-            Rotation2d.fromDegrees(180.0) : Rotation2d.fromDegrees(0.0);
+            Rotation2d.fromDegrees(180.0) : Rotation2d.fromDegrees(180.0);
         gyro.resetGyro(robotRotation);
         setPose(new Pose2d(getPoseEstimate().getTranslation(), robotRotation));
     }

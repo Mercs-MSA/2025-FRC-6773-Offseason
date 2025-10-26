@@ -40,7 +40,7 @@ public class FieldConstants {
     public static final Pose2d B_IL = new Pose2d(1.07, 7.06, Rotation2d.fromDegrees(-55.0)); // SourceLeft
     public static final Pose2d B_IR = new Pose2d(1.0103, 0.926, Rotation2d.fromDegrees(55.0));
 
-    public static final Pose2d R_IL = new Pose2d(16.08, 0.78, Rotation2d.fromDegrees(-55.0+180)); // SourceLeft
+    public static final Pose2d R_IL = new Pose2d(16.6, 1.20, Rotation2d.fromDegrees(-55.0+180)); // SourceLeft
     public static final Pose2d R_IR = new Pose2d(16.45, 7.01, Rotation2d.fromDegrees(55.0+180));
 
 

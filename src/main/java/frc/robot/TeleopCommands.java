@@ -124,7 +124,7 @@ public class TeleopCommands {
 
     public Command substationIntakeCommand() {
         return Commands.parallel(
-            runPivotAndHoldCommand(IntakePivotGoal.kStow),
+            runPivotAndHoldCommand(IntakePivotGoal.kSubstationPickup),
             new InstantCommand(()-> kElevator.setGoal(ElevatorGoal.kStow)),
             runRollerCommand(),
             runManipulatorRollersCommand()

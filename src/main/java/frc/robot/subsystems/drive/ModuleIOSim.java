@@ -2,6 +2,8 @@ package frc.robot.subsystems.drive;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,5 +101,9 @@ public class ModuleIOSim implements ModuleIO {
     public void setAzimuthPID(double kP, double kI, double kD) {
         /* Sets azimuth position PID */
         azimuthPID.setPID(kP, kI, kD);
+    }
+
+    public void setNeutralMode(NeutralModeValue neutralMode) {
+        // driveMotor.setNeutralMode(neutralMode);
     }
 }

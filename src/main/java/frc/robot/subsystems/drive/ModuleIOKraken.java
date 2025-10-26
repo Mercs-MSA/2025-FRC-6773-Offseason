@@ -256,4 +256,8 @@ public class ModuleIOKraken implements ModuleIO {
         slotConfig.kD = kD;
         azimuthMotor.getConfigurator().apply(slotConfig);
     }
+
+    public void setNeutralMode(NeutralModeValue neutralMode) {
+        driveMotor.setNeutralMode(neutralMode);
+    }
 }

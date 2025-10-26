@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -16,6 +17,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.w3c.dom.events.MutationEvent;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 
 import au.grapplerobotics.CanBridge;
@@ -126,17 +128,20 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData("Field/GoalField", mRobotContainer.goalPoseField);
         mRobotContainer.currPoseField.setRobotPose(mRobotContainer.getCurrPose());
         SmartDashboard.putData("Field/CurrPoseField", mRobotContainer.currPoseField);
+        SmartDashboard.putNumber("Game/Time", DriverStation.getMatchTime());
     }
 
     // ==================== Disabled ====================
     @Override
     public void disabledInit() {
+
     }
 
     @Override
     public void disabledPeriodic() {
         //Logger.recordOutput("Field/TestPose", new Pose2d(FieldConstants.testPoseX.getAsDouble(), FieldConstants.testPoseY.getAsDouble(), Rotation2d.fromDegrees(FieldConstants.testPoseRotation.getAsDouble())));
         mRobotContainer.setIntakeBrakeMode();
+        mRobotContainer.setDriveBrakeMode();
     }
 
     @Override
