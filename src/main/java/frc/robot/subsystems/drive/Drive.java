@@ -170,19 +170,19 @@ public class Drive extends SubsystemBase{
 
         /* Sets up pathplanner to load paths. No need for choreo set-up as its handled internally by Pathplanner */
         /* Refer to getTrajectory() in AutonCommands */
-        AutoBuilder.configure(
-            this::getPoseEstimate, 
-            this::setPose, 
-            this::getRobotChassisSpeeds, 
-            (speeds, ff) -> {
-                ppDesiredSpeeds = speeds;
-                pathPlanningFF = ff;
-            }, 
-            new PPHolonomicDriveController( kPPTranslationPID, kPPRotationPID ), 
-            robotConfig, 
-            () -> DriverStation.getAlliance().isPresent() && 
-                DriverStation.getAlliance().get() == Alliance.Red, 
-            this);
+        // AutoBuilder.configure(
+        //     this::getPoseEstimate, 
+        //     this::setPose, 
+        //     this::getRobotChassisSpeeds, 
+        //     (speeds, ff) -> {
+        //         ppDesiredSpeeds = speeds;
+        //         pathPlanningFF = ff;
+        //     }, 
+        //     new PPHolonomicDriveController( Constants.kCurrentMode == Mode.SIM ? kPPSIMTranslationPID : kPPTranslationPID, Constants.kCurrentMode == Mode.SIM ? kPPSIMRotationPID  : kPPRotationPID), 
+        //     robotConfig, 
+        //     () -> DriverStation.getAlliance().isPresent() && 
+        //         DriverStation.getAlliance().get() == Alliance.Red, 
+        //     this);
 
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback((activePath) -> Logger.recordOutput(
@@ -313,11 +313,11 @@ public class Drive extends SubsystemBase{
                 break;
             case DRIVE_TO_CORAL:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
+                desiredSpeeds.omegaRadiansPerSecond *= -1;// * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case DRIVE_TO_INTAKE:
                 desiredSpeeds = autoAlignController.calculate(goalPose, getPoseEstimate());
-                desiredSpeeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
+                desiredSpeeds.omegaRadiansPerSecond *= -1;// * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0);
                 break;
             case AUTON:
                 desiredSpeeds = ppDesiredSpeeds;
@@ -544,7 +544,7 @@ public class Drive extends SubsystemBase{
     public void resetGyro() {
         /* Robot is usually facing the other way(relative to field) when doing cycles on red side, so gyro is reset to 180 */
         robotRotation = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Red) ? 
-            Rotation2d.fromDegrees(180.0) : Rotation2d.fromDegrees(180.0);
+            Rotation2d.fromDegrees(0.0) : Rotation2d.fromDegrees(180.0);
         gyro.resetGyro(robotRotation);
         setPose(new Pose2d(getPoseEstimate().getTranslation(), robotRotation));
     }

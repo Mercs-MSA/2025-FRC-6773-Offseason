@@ -151,6 +151,7 @@ public class Robot extends LoggedRobot {
     // ==================== Autonomous ====================
     @Override
     public void autonomousInit() {
+        //mRobotContainer.setGyroInit();
         mAutonomousCommand = mRobotContainer.getAutonomousCommand();
 
         if (mAutonomousCommand != null) {

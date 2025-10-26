@@ -204,9 +204,9 @@ public class RobotContainer {
 
         // Pass subsystems to classes that need them for configuration
         robotDrive.acceptJoystickInputs(
-            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * speedChooser.get(),
-            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * speedChooser.get(),
-            () -> driverController.getRightX() * (Constants.kCurrentMode == Mode.SIM ? -1.0 : 1.0) * speedChooser.get().doubleValue(),
+            () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * accelerationChooser.get(),
+            () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * accelerationChooser.get(),
+            () -> driverController.getRightX() * accelerationChooser.get().doubleValue(),
             () -> driverController.getHID().getPOV());
 
 
@@ -442,10 +442,6 @@ public class RobotContainer {
         } else if(!m_Intake.getCoralDetected()){
             m_Intake.setBrakeMode(true);
         }
-    }
-
-    public void setDriveBrakeMode() {
-        robotDrive.setBrakeMode(bChooser.get());
     }
 
     
