@@ -6,7 +6,7 @@ public class FieldConstants {
     public static final Pose2d kReefCenter = new Pose2d(4.48249, Constants.kFieldWidthMeters / 2.0, Rotation2d.fromDegrees(0.0));
     public static final double kXNetLineMeters = 7.15;
     
-    public static final Pose2d AL = new Pose2d(3.162, 4.222, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d AL = new Pose2d(3.162, 4.172, Rotation2d.fromDegrees(0.0));
     public static final Pose2d AR = new Pose2d(3.162, 3.872, Rotation2d.fromDegrees(0.0));
     public static final Pose2d AM = new Pose2d(average(AL.getX(), AR.getX()), average(AL.getY(), AR.getY()), Rotation2d.fromDegrees(0.0));
     

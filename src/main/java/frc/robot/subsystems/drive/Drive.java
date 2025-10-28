@@ -142,7 +142,7 @@ public class Drive extends SubsystemBase{
     private final static LoggedTunableNumber driftRate = new LoggedTunableNumber("Drive/DriftRate", DriveConstants.kDriftRate);
     private final static LoggedTunableNumber rotationDriftTestSpeedDeg = new LoggedTunableNumber("Drive/DriftRotationTestDeg", 360);
     private final static LoggedTunableNumber linearTestSpeedMPS = new LoggedTunableNumber("Drive/LinearTestMPS", 4.5);
-
+    
     Debouncer autoAlignTimeout = new Debouncer(0.1, DebounceType.kRising);
     Debouncer autoAlignDelay = new Debouncer(0.1, DebounceType.kRising);
 
@@ -201,13 +201,14 @@ public class Drive extends SubsystemBase{
             this.vision = vision;
         }
 
+    
     public Command customFollowPathCommand(PathPlannerPath path) {
         return new FollowPathCommand(
             path,
             this::getPoseEstimate,
             this::getRobotChassisSpeeds, 
             (speeds, ff) -> {
-                speeds.omegaRadiansPerSecond *= 1;
+                speeds.omegaRadiansPerSecond *= -1 * (Constants.kCurrentMode == Mode.SIM ? -1 : 1);
                 ppDesiredSpeeds = speeds;
                 pathPlanningFF = ff;
             }, 

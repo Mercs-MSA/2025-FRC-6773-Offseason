@@ -82,6 +82,8 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
+
+        
         Logger.start();
         // SignalLogger.stop();
 
@@ -89,7 +91,7 @@ public class Robot extends LoggedRobot {
         CameraServer.startAutomaticCapture();
         PathfindingCommand.warmupCommand().schedule();
 
-
+        mRobotContainer.setGyroInit();
     }
 
     @Override
@@ -124,7 +126,8 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("GoalPose/R/ER", AllianceFlipUtil.apply(FieldConstants.ER));
         Logger.recordOutput("GoalPose/R/FL", AllianceFlipUtil.apply(FieldConstants.FL));
         Logger.recordOutput("GoalPose/R/FR", AllianceFlipUtil.apply(FieldConstants.FR));
-
+        Logger.recordOutput("Position/CurrPoseCoord", mRobotContainer.getPoseArr());
+        
         SmartDashboard.putData("Field/GoalField", mRobotContainer.goalPoseField);
         mRobotContainer.currPoseField.setRobotPose(mRobotContainer.getCurrPose());
         SmartDashboard.putData("Field/CurrPoseField", mRobotContainer.currPoseField);
@@ -151,7 +154,7 @@ public class Robot extends LoggedRobot {
     // ==================== Autonomous ====================
     @Override
     public void autonomousInit() {
-        mRobotContainer.setGyroInit();
+        // mRobotContainer.setGyroInit();
         mAutonomousCommand = mRobotContainer.getAutonomousCommand();
 
         if (mAutonomousCommand != null) {

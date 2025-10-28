@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
     kFloorPickup(() -> Rotation2d.fromRotations(0.0)),
     kStow(() -> Rotation2d.fromRotations(-0.17)),
     kTransfer(() -> Rotation2d.fromRotations(-0.166)),
-    kSubstationPickup(() -> Rotation2d.fromRotations(-0.165)),
+    kSubstationPickup(() -> Rotation2d.fromRotations(-0.153)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(() -> Rotation2d.fromDegrees(
       new LoggedTunableNumber("Intake/Feedback/PivotSetpointDegrees", 0.0).get()));

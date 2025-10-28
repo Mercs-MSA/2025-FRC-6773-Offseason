@@ -206,7 +206,7 @@ public class RobotContainer {
         robotDrive.acceptJoystickInputs(
             () -> - Math.copySign(driverController.getLeftY() * driverController.getLeftY(), driverController.getLeftY()) * speedChooser.get(),
             () -> - Math.copySign(driverController.getLeftX() * driverController.getLeftX(), driverController.getLeftX()) * speedChooser.get(),
-            () -> driverController.getRightX() * speedChooser.get().doubleValue(),
+            () -> driverController.getRightX() * speedChooser.get().doubleValue() * (Constants.kCurrentMode == Mode.SIM ? -1 : 1),
             () -> driverController.getHID().getPOV());
 
 
@@ -452,4 +452,7 @@ public class RobotContainer {
         robotDrive.resetGyro();
     }
     
+    public double[] getPoseArr() {
+        return new double[]{robotDrive.getPoseEstimate().getMeasureX().baseUnitMagnitude(), robotDrive.getPoseEstimate().getMeasureX().baseUnitMagnitude(), robotDrive.getPoseEstimate().getMeasureX().baseUnitMagnitude()};
+    }
 }
